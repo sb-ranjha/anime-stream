@@ -22,3 +22,30 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+
+# Firebase
+src/config/firebase.ts
+src/config/firebase.js
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.firebaserc
+firebase.json
+
+# Firebase Admin SDK
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+
+# Security
+*.pem
+*.key
+*.cert
+*.crt

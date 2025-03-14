@@ -5,8 +5,14 @@ interface Episode {
   id: string;
   title: string;
   number: number;
-  videoUrl: string;
+  doodstream?: string;
+  megacloud?: string;
+  mega?: string;
+  streamtape?: string;
   thumbnail: string;
+  duration: string;
+  releaseDate: string;
+  isNew?: boolean;
 }
 
 interface Season {
@@ -16,15 +22,20 @@ interface Season {
 }
 
 interface Anime {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   image: string;
-  logo?: string;
   category: string;
   trending: boolean;
+  seasonTrending?: boolean;
   rating: number;
   seasons: Season[];
+  isHindiDub?: boolean;
+  isTeluguDub?: boolean;
+  isNewEpisode?: boolean;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 interface AnimeCardProps {
@@ -33,7 +44,7 @@ interface AnimeCardProps {
 
 function AnimeCard({ anime }: AnimeCardProps) {
   return (
-    <Link to={`/anime/${anime.id}`} className="group relative">
+    <Link to={`/anime/${anime._id}`} className="group relative">
       <img
         className="w-full h-64 object-cover rounded-lg transition-transform group-hover:scale-105"
         src={anime.image}

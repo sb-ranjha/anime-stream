@@ -4,9 +4,9 @@ import { Play } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
 
 function AnimeDetails() {
-  const { id } = useParams();
+  const { _id } = useParams();
   const { animes } = useAnime();
-  const anime = animes.find(a => a.id === id);
+  const anime = animes.find(a => a._id === _id);
 
   if (!anime) {
     return <div>Anime not found</div>;
@@ -41,7 +41,7 @@ function AnimeDetails() {
               </div>
               {anime.seasons[0]?.episodes[0] && (
                 <Link
-                  to={`/watch/${anime.id}/${anime.seasons[0].id}/${anime.seasons[0].episodes[0].id}`}
+                  to={`/watch/${anime._id}/${anime.seasons[0]._id}/${anime.seasons[0].episodes[0]._id}`}
                   className="inline-flex items-center bg-[#f47521] text-white px-6 py-3 rounded-md hover:bg-[#ff8a3d]"
                 >
                   <Play className="h-5 w-5 mr-2" /> Start Watching
@@ -54,13 +54,13 @@ function AnimeDetails() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {anime.seasons.map((season) => (
-          <div key={season.id} className="mb-12">
+          <div key={season._id} className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Season {season.number}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {season.episodes.map((episode) => (
                 <Link
-                  key={episode.id}
-                  to={`/watch/${anime.id}/${season.id}/${episode.id}`}
+                  key={episode._id}
+                  to={`/watch/${anime._id}/${season._id}/${episode._id}`}
                   className="group"
                 >
                   <div className="relative">

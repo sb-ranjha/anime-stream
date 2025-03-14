@@ -10,9 +10,10 @@ function Footer() {
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Navigation</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li><Link to="/" className="hover:text-[#f47521] transition-colors">Home</Link></li>
-              <li><Link to="/popular" className="hover:text-[#f47521] transition-colors">Popular</Link></li>
-              <li><Link to="/hindi-dub" className="hover:text-[#f47521] transition-colors">Hindi Dub</Link></li>
-              <li><Link to="/telugu-dub" className="hover:text-[#f47521] transition-colors">Telugu Dub</Link></li>
+              <li><Link to="/category/season-trending" className="hover:text-[#f47521] transition-colors">Season Trending</Link></li>
+              <li><Link to="/category/hindi-dub" className="hover:text-[#f47521] transition-colors">Hindi Dub</Link></li>
+              <li><Link to="/category/telugu-dub" className="hover:text-[#f47521] transition-colors">Telugu Dub</Link></li>
+              <li><Link to="/new-episodes" className="hover:text-[#f47521] transition-colors">New Episodes</Link></li>
             </ul>
           </div>
           <div>
