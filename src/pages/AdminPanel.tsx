@@ -21,10 +21,15 @@ const animeSchema = z.object({
 const episodeSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   number: z.number().min(1, 'Episode number is required'),
-  videoUrl: z.string().url('Must be a valid URL'),
+  doodstream: z.string().optional(),
+  megacloud: z.string().optional(),
+  mega: z.string().optional(),
   thumbnail: z.string().url('Must be a valid URL'),
   duration: z.string().min(1, 'Duration is required'),
   releaseDate: z.string().min(1, 'Release date is required')
+}).refine(data => data.doodstream || data.megacloud || data.mega, {
+  message: "At least one video source must be provided",
+  path: ["doodstream"]
 });
 
 type AnimeFormData = z.infer<typeof animeSchema>;
@@ -78,7 +83,9 @@ const AdminPanel = () => {
     defaultValues: {
       number: 1,
       title: '',
-      videoUrl: '',
+      doodstream: '',
+      megacloud: '',
+      mega: '',
       thumbnail: '',
       duration: '',
       releaseDate: new Date().toISOString().split('T')[0]
@@ -719,64 +726,82 @@ const AdminPanel = () => {
                             </div>
 
                             <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-200">Video URL</label>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">DoodStream ID</label>
                               <input
-                                {...episodeForm.register('videoUrl')}
-                                          className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
-                                          placeholder="Enter video URL"
-                                        />
-                                        {episodeForm.formState.errors.videoUrl && (
-                                          <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
-                                            <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                                            {episodeForm.formState.errors.videoUrl.message}
-                                          </p>
-                                        )}
+                                {...episodeForm.register('doodstream')}
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
+                                placeholder="Enter DoodStream video ID (optional)"
+                              />
                             </div>
 
                             <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-200">Thumbnail URL</label>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">MegaCloud ID</label>
+                              <input
+                                {...episodeForm.register('megacloud')}
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
+                                placeholder="Enter MegaCloud video ID (optional)"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">Mega.nz ID</label>
+                              <input
+                                {...episodeForm.register('mega')}
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
+                                placeholder="Enter Mega.nz video ID (optional)"
+                              />
+                              {episodeForm.formState.errors.doodstream && (
+                                <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                                  <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                  {episodeForm.formState.errors.doodstream.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">Thumbnail URL</label>
                               <input
                                 {...episodeForm.register('thumbnail')}
-                                          className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
-                                          placeholder="Enter thumbnail URL"
-                                        />
-                                        {episodeForm.formState.errors.thumbnail && (
-                                          <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
-                                            <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                                            {episodeForm.formState.errors.thumbnail.message}
-                                          </p>
-                                        )}
-                                      </div>
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
+                                placeholder="Enter thumbnail URL"
+                              />
+                              {episodeForm.formState.errors.thumbnail && (
+                                <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                                  <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                  {episodeForm.formState.errors.thumbnail.message}
+                                </p>
+                              )}
+                            </div>
 
-                                      <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-200">Duration</label>
-                                        <input
-                                          {...episodeForm.register('duration')}
-                                          className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
-                                          placeholder="e.g. 24:30"
-                                        />
-                                        {episodeForm.formState.errors.duration && (
-                                          <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
-                                            <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                                            {episodeForm.formState.errors.duration.message}
-                                          </p>
-                                        )}
-                                      </div>
+                            <div>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">Duration</label>
+                              <input
+                                {...episodeForm.register('duration')}
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all placeholder:text-gray-500"
+                                placeholder="e.g. 24:30"
+                              />
+                              {episodeForm.formState.errors.duration && (
+                                <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                                  <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                  {episodeForm.formState.errors.duration.message}
+                                </p>
+                              )}
+                            </div>
 
-                                      <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-200">Release Date</label>
-                                        <input
-                                          type="date"
-                                          {...episodeForm.register('releaseDate')}
-                                          className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all text-gray-200"
-                                        />
-                                        {episodeForm.formState.errors.releaseDate && (
-                                          <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
-                                            <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                                            {episodeForm.formState.errors.releaseDate.message}
-                                          </p>
-                                        )}
-                                      </div>
+                            <div>
+                              <label className="block text-sm font-medium mb-2 text-gray-200">Release Date</label>
+                              <input
+                                type="date"
+                                {...episodeForm.register('releaseDate')}
+                                className="w-full bg-gray-800/80 rounded-lg px-4 py-3 border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all text-gray-200"
+                              />
+                              {episodeForm.formState.errors.releaseDate && (
+                                <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                                  <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                  {episodeForm.formState.errors.releaseDate.message}
+                                </p>
+                              )}
+                            </div>
                                     </div>
 
                                     <div className="mt-8 flex items-center justify-between gap-4">
@@ -846,6 +871,18 @@ const AdminPanel = () => {
                                               <span>•</span>
                                               <span>{new Date(episode.releaseDate).toLocaleDateString()}</span>
                                             </div>
+                                            {/* Add video source indicators */}
+                                            <div className="flex items-center gap-2 mt-2">
+                                              {episode.doodstream && (
+                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">VidSrc</span>
+                                              )}
+                                              {episode.megacloud && (
+                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">MegaCloud</span>
+                                              )}
+                                              {episode.mega && (
+                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">Mega</span>
+                                              )}
+                                            </div>
                                           </div>
                                 </div>
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -863,7 +900,9 @@ const AdminPanel = () => {
                                                 episodeForm.reset({
                                                   title: episode.title,
                                                   number: episode.number,
-                                                  videoUrl: episode.videoUrl,
+                                                  doodstream: episode.doodstream || '',
+                                                  megacloud: episode.megacloud || '',
+                                                  mega: episode.mega || '',
                                                   thumbnail: episode.thumbnail,
                                                   duration: episode.duration,
                                                   releaseDate: episode.releaseDate

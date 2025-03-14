@@ -4,7 +4,9 @@ interface Episode {
   id: string;
   title: string;
   number: number;
-  videoUrl: string;
+  doodstream?: string;
+  megacloud?: string;
+  mega?: string;
   thumbnail: string;
   duration: string;
   releaseDate: string;
