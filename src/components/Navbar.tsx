@@ -164,14 +164,14 @@ function Navbar() {
                 Telugu Dub
               </Link>
               <Link
-                to="/new-episodes"
+                to="/movies"
                 className={`px-4 py-2.5 rounded-lg text-base font-semibold transition-all ${
-                  isActive('/new-episodes')
+                  isActive('/movies')
                     ? 'text-[#f47521] bg-white/5'
                     : 'text-white hover:text-[#f47521] hover:bg-white/5'
                 }`}
               >
-                New Episodes
+                Movies
               </Link>
             </div>
           </div>
@@ -273,15 +273,15 @@ function Navbar() {
                 Telugu Dub
               </Link>
               <Link
-                to="/new-episodes"
+                to="/movies"
                 className={`px-4 py-2.5 text-base font-medium transition-all ${
-                  isActive('/new-episodes')
+                  isActive('/movies')
                     ? 'text-[#f47521] bg-white/5'
                     : 'text-white hover:bg-white/5'
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                New Episodes
+                Movies
               </Link>
             </div>
           </div>

@@ -38,6 +38,7 @@ interface Anime {
   isHindiDub?: boolean;
   isTeluguDub?: boolean;
   isNewEpisode?: boolean;
+  isMovie?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -126,6 +127,9 @@ function Home() {
     });
     setProgress(0);
   };
+
+  // Filter movies
+  const movies = animes.filter(anime => anime.isMovie);
 
   return (
     <div className="pt-14 bg-black">
@@ -612,6 +616,30 @@ function Home() {
           </div>
         </div>
       </div>
+
+      {/* Movies Section */}
+      <section className="py-8 md:py-12 bg-[#141821]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+              <Play className="h-5 w-5 text-[#f47521]" />
+              Movies
+            </h2>
+            <Link 
+              to="/movies" 
+              className="text-sm text-white/70 hover:text-[#f47521] transition-colors"
+            >
+              View All
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
+            {movies.slice(0, 12).map((anime) => (
+              <AnimeCard key={anime._id} anime={anime} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Update anime card styles */}
       <style>

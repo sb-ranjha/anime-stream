@@ -12,12 +12,14 @@ import TeluguDubbed from './pages/TeluguDubbed';
 import NewEpisodes from './pages/NewEpisodes';
 import SeasonTrending from './pages/SeasonTrending';
 import CategoryPage from './pages/CategoryPage';
+import Movies from './pages/Movies';
+import WatchMovie from './pages/WatchMovie';
 import { AnimeProvider } from './context/AnimeContext';
 
 function App() {
   return (
-    <Router>
-      <AnimeProvider>
+    <AnimeProvider>
+      <Router>
         <div className="flex flex-col min-h-screen bg-black text-gray-100">
           <Navbar />
           <main className="flex-1">
@@ -31,13 +33,15 @@ function App() {
               <Route path="/category/hindi-dub" element={<HindiDubbed />} />
               <Route path="/category/telugu-dub" element={<TeluguDubbed />} />
               <Route path="/new-episodes" element={<NewEpisodes />} />
+              <Route path="/movies" element={<Movies />} />
               <Route path="/category/:category" element={<CategoryPage />} />
+              <Route path="/watch/:id" element={<WatchMovie />} />
             </Routes>
           </main>
           <Footer />
         </div>
-      </AnimeProvider>
-    </Router>
+      </Router>
+    </AnimeProvider>
   );
 }
 

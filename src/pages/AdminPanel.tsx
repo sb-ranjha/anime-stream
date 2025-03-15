@@ -15,7 +15,8 @@ const animeSchema = z.object({
   rating: z.number().min(0).max(10),
   isHindiDub: z.boolean().optional(),
   isTeluguDub: z.boolean().optional(),
-  isNewEpisode: z.boolean().optional()
+  isNewEpisode: z.boolean().optional(),
+  isMovie: z.boolean().optional()
 });
 
 const episodeSchema = z.object({
@@ -69,6 +70,7 @@ interface Anime {
   isHindiDub?: boolean;
   isTeluguDub?: boolean;
   isNewEpisode?: boolean;
+  isMovie?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -91,7 +93,7 @@ const AdminPanel = () => {
     direction: 'asc' | 'desc';
   }>({ key: 'title', direction: 'asc' });
   const [filterCategory, setFilterCategory] = useState<string>('');
-  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime'>('all');
+  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime' | 'movies'>('all');
   const [latestEpisodes, setLatestEpisodes] = useState<Array<{
     animeId: string;
     seasonId: string;
@@ -112,7 +114,8 @@ const AdminPanel = () => {
       rating: 0,
       isHindiDub: false,
       isTeluguDub: false,
-      isNewEpisode: false
+      isNewEpisode: false,
+      isMovie: false
     }
   });
 
@@ -188,6 +191,9 @@ const AdminPanel = () => {
         break;
       case 'newAnime':
         filtered = filtered.filter(anime => anime.isNewEpisode === true);
+        break;
+      case 'movies':
+        filtered = filtered.filter(anime => anime.isMovie === true);
         break;
       // 'all' case doesn't need filtering
     }
@@ -326,7 +332,7 @@ const AdminPanel = () => {
   };
 
   // Update the handleNavigationClick function
-  const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime') => {
+  const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime' | 'movies') => {
     setActiveSection(section);
     setFilterCategory(''); // Reset category filter when changing sections
   };
@@ -389,6 +395,16 @@ const AdminPanel = () => {
                 }`}
               >
                 <Play className="h-4 w-4" /> New Anime ({animes.filter(anime => anime.isNewEpisode).length})
+              </button>
+              <button
+                onClick={() => handleNavigationClick('movies')}
+                className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
+                  activeSection === 'movies' 
+                    ? 'bg-[#f47521] text-white' 
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                <Play className="h-4 w-4" /> Movies ({animes.filter(anime => anime.isMovie).length})
               </button>
             </nav>
 
@@ -531,6 +547,14 @@ const AdminPanel = () => {
                     className="w-4 h-4 rounded border-gray-300"
                   />
                   <span className="text-sm">Telugu Dub</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    {...animeForm.register('isMovie')}
+                    className="w-4 h-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm">Movie</span>
                 </label>
               </div>
 
@@ -677,6 +701,14 @@ const AdminPanel = () => {
                               >
                                 New
                               </button>
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'isMovie')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.isMovie ? 'bg-yellow-600 text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                Movie
+                              </button>
                             </div>
                         </div>
 
@@ -703,17 +735,17 @@ const AdminPanel = () => {
               </div>
 
                     {/* Seasons Section */}
-              {selectedAnime === anime._id && (
-                <div className="border-t border-gray-600 p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-medium">Seasons</h4>
-                    <button
-                      onClick={() => handleAddSeason(anime._id)}
+                    {selectedAnime === anime._id && !anime.isMovie && (
+                      <div className="border-t border-gray-600 p-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="font-medium">Seasons</h4>
+                          <button
+                            onClick={() => handleAddSeason(anime._id)}
                             className="flex items-center gap-1 text-sm bg-[#f47521] px-3 py-1 rounded hover:bg-[#f47521]/80 transition-colors"
-                    >
+                          >
                             <Plus className="h-4 w-4" /> Add Season
-                    </button>
-                  </div>
+                          </button>
+                        </div>
 
                         {/* Season List */}
                         <div className="space-y-4">
@@ -947,6 +979,155 @@ const AdminPanel = () => {
                     </div>
                   ))}
                         </div>
+                </div>
+              )}
+
+              {/* Movie Section */}
+              {selectedAnime === anime._id && anime.isMovie && (
+                <div className="border-t border-gray-600 p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-xl font-semibold text-white">Movie Details</h4>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-4">
+                    <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-xl p-8">
+                      <h3 className="text-2xl font-semibold mb-8 flex items-center text-white">
+                        <Plus className="h-5 w-5 text-[#f47521] mr-2" />
+                        {editingEpisode ? 'Edit Movie Details' : 'Add Movie Details'}
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 gap-6">
+                        {/* Movie Description */}
+                        <div>
+                          <label className="block text-base font-medium mb-2 text-gray-200">Movie Description</label>
+                          <textarea
+                            {...episodeForm.register('title')}
+                            className="w-full bg-[#272b38] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all h-32"
+                            placeholder="Enter a detailed description of the movie..."
+                          />
+                          <p className="mt-1 text-sm text-gray-400">
+                            Include key details like plot summary, main characters, and any special features.
+                          </p>
+                        </div>
+
+                        {/* Video Sources Section */}
+                        <div className="bg-[#272b38] rounded-lg p-6 space-y-6">
+                          <h4 className="text-lg font-medium text-white mb-4">Video Sources</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">
+                                DoodStream ID
+                                <span className="text-xs text-gray-400 ml-2">(Primary Source)</span>
+                              </label>
+                              <input
+                                {...episodeForm.register('doodstream')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                                placeholder="Enter DoodStream video ID"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">
+                                MegaCloud ID
+                                <span className="text-xs text-gray-400 ml-2">(Backup Source)</span>
+                              </label>
+                              <input
+                                {...episodeForm.register('megacloud')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                                placeholder="Enter MegaCloud video ID"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">
+                                Mega.nz ID
+                                <span className="text-xs text-gray-400 ml-2">(Alternative Source)</span>
+                              </label>
+                              <input
+                                {...episodeForm.register('mega')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                                placeholder="Enter Mega.nz video ID"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">
+                                Streamtape ID
+                                <span className="text-xs text-gray-400 ml-2">(Alternative Source)</span>
+                              </label>
+                              <input
+                                {...episodeForm.register('streamtape')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                                placeholder="Enter Streamtape video ID"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Movie Details Section */}
+                        <div className="bg-[#272b38] rounded-lg p-6 space-y-6">
+                          <h4 className="text-lg font-medium text-white mb-4">Additional Details</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">Duration</label>
+                              <input
+                                {...episodeForm.register('duration')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                                placeholder="e.g., 2:30:00"
+                              />
+                              <p className="mt-1 text-sm text-gray-400">Format: HH:MM:SS</p>
+                            </div>
+
+                            <div>
+                              <label className="block text-base font-medium mb-2 text-gray-200">Release Date</label>
+                              <input
+                                type="date"
+                                {...episodeForm.register('releaseDate')}
+                                className="w-full bg-[#1e2330] rounded-lg px-4 py-3 text-white border border-gray-600 focus:border-[#f47521] focus:ring-2 focus:ring-[#f47521]/20 transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-8 flex items-center justify-between">
+                        <div className="flex items-center text-gray-400 text-sm">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#f47521] mr-2"></span>
+                          At least one video source and description are required
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {editingEpisode && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingEpisode(null);
+                                episodeForm.reset();
+                              }}
+                              className="px-6 py-2.5 rounded-lg bg-[#272b38] text-gray-300 font-medium flex items-center gap-2 hover:bg-[#2f3446] transition-colors"
+                            >
+                              <X className="h-4 w-4" />
+                              Cancel
+                            </button>
+                          )}
+                          <button
+                            type="submit"
+                            className="px-6 py-2.5 rounded-lg bg-[#f47521] text-white font-medium flex items-center gap-2 hover:bg-[#f47521]/90 transition-colors"
+                          >
+                            {editingEpisode ? (
+                              <>
+                                <Edit2 className="h-4 w-4" />
+                                Update Movie
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-4 w-4" />
+                                Add Movie
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>

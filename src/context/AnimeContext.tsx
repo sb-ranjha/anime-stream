@@ -49,6 +49,7 @@ interface Anime {
   isHindiDub?: boolean;
   isTeluguDub?: boolean;
   isNewEpisode?: boolean;
+  isMovie?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -69,7 +70,7 @@ interface AnimeContextType {
 const AnimeContext = createContext<AnimeContextType | undefined>(undefined);
 const COLLECTION_NAME = 'animes';
 
-export function AnimeProvider({ children }: { children: React.ReactNode }) {
+const AnimeProvider = ({ children }: { children: React.ReactNode }) => {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -321,12 +322,14 @@ export function AnimeProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AnimeContext.Provider>
   );
-}
+};
 
-export function useAnime() {
+const useAnime = () => {
   const context = useContext(AnimeContext);
   if (context === undefined) {
     throw new Error('useAnime must be used within an AnimeProvider');
   }
   return context;
-}
+};
+
+export { AnimeProvider, useAnime };

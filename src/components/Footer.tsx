@@ -13,6 +13,7 @@ function Footer() {
               <li><Link to="/category/season-trending" className="hover:text-[#f47521] transition-colors">Season Trending</Link></li>
               <li><Link to="/category/hindi-dub" className="hover:text-[#f47521] transition-colors">Hindi Dub</Link></li>
               <li><Link to="/category/telugu-dub" className="hover:text-[#f47521] transition-colors">Telugu Dub</Link></li>
+              <li><Link to="/movies" className="hover:text-[#f47521] transition-colors">Movies</Link></li>
               <li><Link to="/new-episodes" className="hover:text-[#f47521] transition-colors">New Episodes</Link></li>
             </ul>
           </div>
