@@ -164,44 +164,44 @@ function Home() {
           {/* Mobile Content Container */}
           <div className="md:hidden relative h-full flex items-end z-10">
             <div className="w-full px-4 sm:px-6 mb-8">
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {/* Spotlight tag */}
-                <div className="inline-block bg-[#f47521] px-2 py-0.5 rounded-md">
-                  <span className="text-white font-bold text-xs">#{currentSlide + 1} Spotlight</span>
+                <div className="inline-block bg-[#f47521] px-1.5 py-0.5 rounded">
+                  <span className="text-white font-bold text-[10px]">#{currentSlide + 1} Spotlight</span>
                 </div>
                 
                 {/* Title */}
-                <h1 className="text-xl font-bold text-white leading-tight tracking-wide">
+                <h1 className="text-lg font-bold text-white leading-tight tracking-wide">
                   {topTrending[currentSlide].title}
                 </h1>
-
+                
                 {/* Sub | Dub • Category */}
-                <div className="flex items-center gap-2 text-white/90 text-[10px]">
+                <div className="flex items-center gap-2 text-white/90 text-[8px]">
                   <span>Sub | Dub</span>
                   <span className="text-[#f47521]">•</span>
                   <span>{topTrending[currentSlide].category}</span>
                 </div>
 
                 {/* Description */}
-                <p className="text-[10px] text-white/70 leading-relaxed line-clamp-2">
+                <p className="text-[8px] text-white/70 leading-relaxed line-clamp-2">
                   {topTrending[currentSlide].description.length > 100 
                     ? `${topTrending[currentSlide].description.substring(0, 100)}...` 
                     : topTrending[currentSlide].description}
                 </p>
 
                 {/* Watch Now Button & Rating */}
-                <div className="flex items-center gap-4 pt-2">
+                <div className="flex items-center gap-4 pt-1">
                   <Link 
                     to={`/anime/${topTrending[currentSlide]._id}`}
-                    className="bg-[#f47521] text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center hover:bg-[#ff8a3d] transition-colors"
+                    className="bg-[#f47521] text-white px-4 py-2 rounded-full text-sm font-medium flex items-center hover:bg-[#ff8a3d] transition-colors md:px-2.5 md:py-1 md:text-[10px]"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Play className="h-3 w-3 mr-1" /> Watch Now
+                    <Play className="h-4 w-4 mr-1.5 md:h-2.5 md:w-2.5 md:mr-1" /> Watch Now
                   </Link>
                   
                   <div className="flex items-center gap-1.5 text-white/90">
-                    <Star className="h-3 w-3 text-[#f47521]" />
-                    <span className="text-xs">{topTrending[currentSlide].rating.toFixed(1)}</span>
+                    <Star className="h-2.5 w-2.5 text-[#f47521]" />
+                    <span className="text-[10px]">{topTrending[currentSlide].rating.toFixed(1)}</span>
                   </div>
                 </div>
               </div>
@@ -275,7 +275,7 @@ function Home() {
                     style={{ width: `${progress}%` }}
                   />
                 )}
-              </button>
+                  </button>
             ))}
           </div>
         </div>
@@ -291,7 +291,7 @@ function Home() {
           <h2 className="text-2xl md:text-4xl font-bold flex items-center">
             <span className="text-[#f47521] mr-2">Top 10</span> Trending Now
           </h2>
-          {/* Only show navigation buttons on desktop */}
+          {/* Navigation buttons for desktop */}
           <div className="hidden md:flex items-center gap-3">
             <button 
               onClick={goToPrevTopTen}
@@ -309,31 +309,31 @@ function Home() {
             </button>
           </div>
         </div>
-
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
+        
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
             {topTrending.map((anime, index) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
-                className="block w-[160px] flex-shrink-0"
+                className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111]">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
                   <img
                     src={anime.image}
                     alt={anime.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                  <div className="absolute top-0 left-0 w-8 h-8 bg-[#f47521] flex items-center justify-center z-10 rounded-br-lg">
-                    <span className="text-sm font-bold text-white">#{index + 1}</span>
+                  <div className="absolute top-0 left-0 w-8 h-8 md:w-12 md:h-12 bg-[#f47521] flex items-center justify-center z-10 rounded-br-lg">
+                    <span className="text-sm md:text-xl font-bold text-white">#{index + 1}</span>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <h3 className="text-sm font-semibold text-white line-clamp-2 mb-1">{anime.title}</h3>
-                    <div className="flex items-center gap-2 text-xs text-white/80">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                    <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white/80">
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-[#f47521]" />
+                        <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
@@ -344,44 +344,6 @@ function Home() {
               </Link>
             ))}
           </div>
-        </div>
-
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
-          {topTrending.map((anime, index) => (
-            <Link 
-              key={anime._id} 
-              to={`/anime/${anime._id}`} 
-              className={`group relative transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 ${index === currentSlide ? 'ring-2 ring-[#f47521] rounded-lg' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentSlide(index);
-                setProgress(0);
-              }}
-            >
-              <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg transition-shadow duration-300 group-hover:shadow-xl">
-                <div className="absolute top-0 left-0 w-12 h-12 bg-[#f47521] flex items-center justify-center z-10 rounded-br-lg transform transition-transform duration-300 group-hover:scale-110">
-                  <span className="text-xl font-bold text-white">#{index + 1}</span>
-                </div>
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:filter group-hover:brightness-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <h3 className="text-xl font-bold text-white mb-2">{anime.title}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-300">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                      <span>{anime.rating.toFixed(1)}</span>
-                    </div>
-                    <span>{anime.category}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
         </div>
       </div>
 
@@ -399,14 +361,14 @@ function Home() {
             <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
           </Link>
         </div>
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
-            {animes.filter(anime => anime.seasonTrending).slice(0, 14).map((anime) => (
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
+            {animes.filter(anime => anime.seasonTrending).slice(0, 20).map((anime) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
-                className="block w-[160px] flex-shrink-0"
+                className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
                 <div className="anime-card">
                   <img
@@ -432,37 +394,6 @@ function Home() {
             ))}
           </div>
         </div>
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-          {animes.filter(anime => anime.seasonTrending).slice(0, 14).map((anime) => (
-            <Link 
-              key={anime._id} 
-              to={`/anime/${anime._id}`} 
-              className="block"
-            >
-              <div className="anime-card">
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  loading="lazy"
-                />
-                <div className="overlay" />
-                <div className="badge bg-purple-600">Season</div>
-                <div className="content">
-                  <h3 className="title">{anime.title}</h3>
-                  <div className="metadata">
-                    <div className="rating">
-                      <Star className="rating-star" />
-                      <span>{anime.rating.toFixed(1)}</span>
-                    </div>
-                    <span className="text-[#f47521]">•</span>
-                    <span>{anime.category}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
 
       {/* Latest Releases Section */}
@@ -472,21 +403,21 @@ function Home() {
             <span className="text-[#f47521] mr-2">Latest</span> Releases
           </h2>
           <Link 
-            to="/new-episodes" 
+            to="/latest-releases" 
             className="text-[#f47521] hover:text-[#ff8a3d] font-medium flex items-center text-sm md:text-lg"
           >
             View All
             <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
           </Link>
         </div>
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
-            {animes.slice(0, 14).map((anime) => (
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
+            {animes.slice(0, 20).map((anime) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
-                className="block w-[160px] flex-shrink-0"
+                className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
                 <div className="anime-card">
                   <img
@@ -511,36 +442,6 @@ function Home() {
             ))}
           </div>
         </div>
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-          {animes.slice(0, 14).map((anime) => (
-            <Link 
-              key={anime._id} 
-              to={`/anime/${anime._id}`} 
-              className="block"
-            >
-              <div className="anime-card">
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  loading="lazy"
-                />
-                <div className="overlay" />
-                <div className="content">
-                  <h3 className="title">{anime.title}</h3>
-                  <div className="metadata">
-                    <div className="rating">
-                      <Star className="rating-star" />
-                      <span>{anime.rating.toFixed(1)}</span>
-                    </div>
-                    <span className="text-[#f47521]">•</span>
-                    <span>{anime.category}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
 
       {/* Hindi Dubbed Section */}
@@ -557,14 +458,14 @@ function Home() {
             <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
           </Link>
         </div>
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
-            {animes.filter(anime => anime.isHindiDub).slice(0, 14).map((anime) => (
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
+            {animes.filter(anime => anime.isHindiDub).slice(0, 20).map((anime) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
-                className="block w-[160px] flex-shrink-0"
+                className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
                 <div className="anime-card">
                   <img
@@ -590,37 +491,6 @@ function Home() {
             ))}
           </div>
         </div>
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-          {animes.filter(anime => anime.isHindiDub).slice(0, 14).map((anime) => (
-            <Link 
-              key={anime._id} 
-              to={`/anime/${anime._id}`} 
-              className="block"
-            >
-              <div className="anime-card">
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  loading="lazy"
-                />
-                <div className="overlay" />
-                <div className="badge bg-blue-600">Hindi</div>
-                <div className="content">
-                  <h3 className="title">{anime.title}</h3>
-                  <div className="metadata">
-                    <div className="rating">
-                      <Star className="rating-star" />
-                      <span>{anime.rating.toFixed(1)}</span>
-                    </div>
-                    <span className="text-[#f47521]">•</span>
-                    <span>{anime.category}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
 
       {/* Telugu Dubbed Section */}
@@ -637,14 +507,14 @@ function Home() {
             <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
           </Link>
         </div>
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
-            {animes.filter(anime => anime.isTeluguDub).slice(0, 14).map((anime) => (
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
+            {animes.filter(anime => anime.isTeluguDub).slice(0, 20).map((anime) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
-                className="block w-[160px] flex-shrink-0"
+                className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
                 <div className="anime-card">
                   <img
@@ -670,37 +540,6 @@ function Home() {
             ))}
           </div>
         </div>
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-          {animes.filter(anime => anime.isTeluguDub).slice(0, 14).map((anime) => (
-            <Link 
-              key={anime._id} 
-              to={`/anime/${anime._id}`} 
-              className="block"
-            >
-              <div className="anime-card">
-                <img
-                  src={anime.image}
-                  alt={anime.title}
-                  loading="lazy"
-                />
-                <div className="overlay" />
-                <div className="badge bg-green-600">Telugu</div>
-                <div className="content">
-                  <h3 className="title">{anime.title}</h3>
-                  <div className="metadata">
-                    <div className="rating">
-                      <Star className="rating-star" />
-                      <span>{anime.rating.toFixed(1)}</span>
-                    </div>
-                    <span className="text-[#f47521]">•</span>
-                    <span>{anime.category}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
 
       {/* Categories Section */}
@@ -720,34 +559,38 @@ function Home() {
             <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
           </Link>
         </div>
-        {/* Mobile scrollable view */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-          <div className="flex space-x-4 w-max pb-4">
+        {/* Scrollable view for both mobile and desktop */}
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-4 md:space-x-6 w-max pb-4">
             {animes
-              .filter(anime => anime.seasons.some(season => season.episodes.some(episode => episode.isNew)))
-              .slice(0, 14)
+              .filter(anime => {
+                return anime.seasons.some(season => 
+                  season.episodes.some(episode => episode.isNew === true)
+                );
+              })
+              .slice(0, 20)
               .map((anime) => {
                 const latestNewEpisode = anime.seasons
                   .flatMap(season => season.episodes)
-                  .filter(episode => episode.isNew)
+                  .filter(episode => episode.isNew === true)
                   .sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())[0];
+
+                if (!latestNewEpisode) return null;
 
                 return (
                   <Link 
                     key={anime._id} 
-                    to={`/anime/${anime._id}`} 
-                    className="block w-[160px] flex-shrink-0"
+                    to={`/watch/${anime._id}/episode/${latestNewEpisode._id}`} 
+                    className="block w-[160px] md:w-[240px] flex-shrink-0"
                   >
                     <div className="anime-card">
                       <img
-                        src={latestNewEpisode?.thumbnail || anime.image}
+                        src={latestNewEpisode.thumbnail || anime.image}
                         alt={anime.title}
                         loading="lazy"
                       />
                       <div className="overlay" />
-                      <div className="badge bg-[#f47521]">
-                        EP {latestNewEpisode?.number}
-                      </div>
+                      <div className="badge bg-[#f47521]">EP {latestNewEpisode.number}</div>
                       <div className="content">
                         <h3 className="title">{anime.title}</h3>
                         <div className="metadata">
@@ -758,11 +601,9 @@ function Home() {
                           <span className="text-[#f47521]">•</span>
                           <span>{anime.category}</span>
                         </div>
-                        {latestNewEpisode && (
-                          <p className="text-[10px] md:text-xs text-white/70 mt-1 line-clamp-1">
-                            {latestNewEpisode.title} • {latestNewEpisode.duration}
-                          </p>
-                        )}
+                        <p className="text-[10px] md:text-xs text-white/70 mt-1 line-clamp-1">
+                          {latestNewEpisode.title} • {latestNewEpisode.duration}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -770,59 +611,18 @@ function Home() {
               })}
           </div>
         </div>
-        {/* Desktop grid view */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-          {animes
-            .filter(anime => anime.seasons.some(season => season.episodes.some(episode => episode.isNew)))
-            .slice(0, 14)
-            .map((anime) => {
-              const latestNewEpisode = anime.seasons
-                .flatMap(season => season.episodes)
-                .filter(episode => episode.isNew)
-                .sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())[0];
-
-              return (
-                <Link 
-                  key={anime._id} 
-                  to={`/anime/${anime._id}`} 
-                  className="block"
-                >
-                  <div className="anime-card">
-                    <img
-                      src={latestNewEpisode?.thumbnail || anime.image}
-                      alt={anime.title}
-                      loading="lazy"
-                    />
-                    <div className="overlay" />
-                    <div className="badge bg-[#f47521]">
-                      EP {latestNewEpisode?.number}
-                    </div>
-                    <div className="content">
-                      <h3 className="title">{anime.title}</h3>
-                      <div className="metadata">
-                        <div className="rating">
-                          <Star className="rating-star" />
-                          <span>{anime.rating.toFixed(1)}</span>
-                        </div>
-                        <span className="text-[#f47521]">•</span>
-                        <span>{anime.category}</span>
-                      </div>
-                      {latestNewEpisode && (
-                        <p className="text-xs text-white/70 mt-2 line-clamp-1">
-                          {latestNewEpisode.title} • {latestNewEpisode.duration}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-        </div>
       </div>
 
       {/* Update anime card styles */}
       <style>
         {`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
         .anime-card {
           aspect-ratio: 2/3;
           position: relative;
@@ -843,10 +643,10 @@ function Home() {
           height: 100%;
           object-fit: cover;
           object-position: center;
-          brightness: 90%;
+          transition: transform 0.3s ease;
         }
         .anime-card:hover img {
-          brightness: 110%;
+          transform: scale(1.1);
         }
         .anime-card .overlay {
           position: absolute;

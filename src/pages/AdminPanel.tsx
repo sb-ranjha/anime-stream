@@ -91,7 +91,7 @@ const AdminPanel = () => {
     direction: 'asc' | 'desc';
   }>({ key: 'title', direction: 'asc' });
   const [filterCategory, setFilterCategory] = useState<string>('');
-  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newEpisodes'>('all');
+  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime'>('all');
   const [latestEpisodes, setLatestEpisodes] = useState<Array<{
     animeId: string;
     seasonId: string;
@@ -172,14 +172,40 @@ const AdminPanel = () => {
     }
   };
 
-  const filteredAndSortedAnimes = useMemo(() => {
-    let filtered = animes.filter(anime => {
-      const matchesSearch = anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          anime.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = !filterCategory || anime.category === filterCategory;
-      return matchesSearch && matchesCategory;
-    });
+  const filteredAnime = useMemo(() => {
+    let filtered = [...animes];
 
+    // Apply section filters first
+    switch (activeSection) {
+      case 'teluguDub':
+        filtered = filtered.filter(anime => anime.isTeluguDub === true);
+        break;
+      case 'hindiDub':
+        filtered = filtered.filter(anime => anime.isHindiDub === true);
+        break;
+      case 'popular':
+        filtered = filtered.filter(anime => anime.trending === true);
+        break;
+      case 'newAnime':
+        filtered = filtered.filter(anime => anime.isNewEpisode === true);
+        break;
+      // 'all' case doesn't need filtering
+    }
+
+    // Then apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(anime =>
+        anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        anime.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Finally apply category filter
+    if (filterCategory && filterCategory !== 'All Categories') {
+      filtered = filtered.filter(anime => anime.category === filterCategory);
+    }
+
+    // Apply sorting
     return filtered.sort((a, b) => {
       if (sortConfig.key === 'rating') {
         return sortConfig.direction === 'asc' ? a.rating - b.rating : b.rating - a.rating;
@@ -190,7 +216,7 @@ const AdminPanel = () => {
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     });
-  }, [animes, searchQuery, sortConfig, filterCategory]);
+  }, [animes, activeSection, searchQuery, filterCategory, sortConfig]);
 
   const handleSort = (key: 'title' | 'category' | 'rating') => {
     setSortConfig(prev => ({
@@ -241,31 +267,6 @@ const AdminPanel = () => {
       console.error('Episode form error:', error);
     }
   };
-
-  const filteredAnimesBySection = useMemo(() => {
-    // First apply search and category filters
-    let filtered = animes.filter(anime => {
-      const matchesSearch = anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          anime.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = !filterCategory || anime.category === filterCategory;
-      return matchesSearch && matchesCategory;
-    });
-
-    // Then apply section-specific filters
-    switch (activeSection) {
-      case 'popular':
-        return filtered.filter(anime => anime.trending === true);
-      case 'hindiDub':
-        return filtered.filter(anime => anime.isHindiDub === true);
-      case 'teluguDub':
-        return filtered.filter(anime => anime.isTeluguDub === true);
-      case 'newEpisodes':
-        // Only show animes that are marked as having new episodes
-        return filtered.filter(anime => anime.isNewEpisode === true);
-      default:
-        return filtered;
-    }
-  }, [animes, searchQuery, filterCategory, activeSection]);
 
   // Remove the automatic new episode status check
   useEffect(() => {
@@ -324,8 +325,14 @@ const AdminPanel = () => {
     setDeleteConfirmation(null);
   };
 
+  // Update the handleNavigationClick function
+  const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime') => {
+    setActiveSection(section);
+    setFilterCategory(''); // Reset category filter when changing sections
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 bg-white dark:bg-[#141821]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 bg-white dark:bg-[#141821] mt-20 md:mt-24">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Navigation */}
         <div className="w-full md:w-64 shrink-0">
@@ -334,7 +341,7 @@ const AdminPanel = () => {
             
             <nav className="space-y-2">
               <button
-                onClick={() => setActiveSection('all')}
+                onClick={() => handleNavigationClick('all')}
                 className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
                   activeSection === 'all' 
                     ? 'bg-[#f47521] text-white' 
@@ -344,7 +351,7 @@ const AdminPanel = () => {
                 <Globe2 className="h-4 w-4" /> All Anime ({animes.length})
               </button>
               <button
-                onClick={() => setActiveSection('popular')}
+                onClick={() => handleNavigationClick('popular')}
                 className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
                   activeSection === 'popular' 
                     ? 'bg-[#f47521] text-white' 
@@ -354,7 +361,7 @@ const AdminPanel = () => {
                 <Star className="h-4 w-4" /> Popular ({animes.filter(anime => anime.trending).length})
               </button>
               <button
-                onClick={() => setActiveSection('hindiDub')}
+                onClick={() => handleNavigationClick('hindiDub')}
                 className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
                   activeSection === 'hindiDub' 
                     ? 'bg-[#f47521] text-white' 
@@ -364,7 +371,7 @@ const AdminPanel = () => {
                 <Globe2 className="h-4 w-4" /> Hindi Dubbed ({animes.filter(anime => anime.isHindiDub).length})
               </button>
               <button
-                onClick={() => setActiveSection('teluguDub')}
+                onClick={() => handleNavigationClick('teluguDub')}
                 className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
                   activeSection === 'teluguDub' 
                     ? 'bg-[#f47521] text-white' 
@@ -374,14 +381,14 @@ const AdminPanel = () => {
                 <Globe2 className="h-4 w-4" /> Telugu Dubbed ({animes.filter(anime => anime.isTeluguDub).length})
               </button>
               <button
-                onClick={() => setActiveSection('newEpisodes')}
+                onClick={() => handleNavigationClick('newAnime')}
                 className={`w-full text-left px-4 py-2 rounded-md flex items-center gap-2 ${
-                  activeSection === 'newEpisodes' 
+                  activeSection === 'newAnime' 
                     ? 'bg-[#f47521] text-white' 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
-                <Play className="h-4 w-4" /> New Episodes ({animes.filter(anime => anime.isNewEpisode).length})
+                <Play className="h-4 w-4" /> New Anime ({animes.filter(anime => anime.isNewEpisode).length})
               </button>
             </nav>
 
@@ -601,7 +608,7 @@ const AdminPanel = () => {
 
               {/* Anime List */}
               <div className="space-y-4">
-                {filteredAndSortedAnimes.map((anime) => (
+                {filteredAnime.map((anime) => (
                   <div key={anime._id} className="bg-white dark:bg-gray-700 rounded-lg overflow-hidden">
                     <div className="flex flex-col md:flex-row items-start gap-4 p-4">
                       {/* Anime Image */}
