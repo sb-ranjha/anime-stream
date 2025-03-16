@@ -3,13 +3,13 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: ""
+  apiKey: "AIzaSyC3jiPEpuhS-ICUfNV7xpZ6r0DdlpAn9FE",
+  authDomain: "hackathon2025-1cf3f.firebaseapp.com",
+  projectId: "hackathon2025-1cf3f",
+  storageBucket: "hackathon2025-1cf3f.firebasestorage.app",
+  messagingSenderId: "1064213088987",
+  appId: "1:1064213088987:web:b1a26566fbfea953965afe",
+  measurementId: "G-NTH4D108P2"
 };
 
 // Initialize Firebase
