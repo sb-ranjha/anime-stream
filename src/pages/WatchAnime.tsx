@@ -20,6 +20,10 @@ function WatchAnime() {
   }>>([]);
   const [videoSource, setVideoSource] = useState<'doodstream' | 'megacloud' | 'mega' | 'streamtape'>('doodstream');
   const [isLoading, setIsLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const anime = animes.find(a => a._id === animeId);
   const season = anime?.seasons.find(s => s._id === seasonId);
@@ -93,8 +97,27 @@ function WatchAnime() {
     }
   }, [animeId, anime, animes]);
 
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 md:py-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 md:py-8 mt-16 md:mt-20">
       <div className="mb-4 md:mb-8">
         <h1 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">{anime.title}</h1>
         <p className="text-sm md:text-base text-gray-400">Season {season.number} - Episode {episode.number}: {episode.title}</p>
@@ -117,12 +140,12 @@ function WatchAnime() {
           <div className="absolute top-0 left-0 w-full h-full">
             {videoSource === 'doodstream' && episode.doodstream ? (
               <iframe 
-                src={`https://dood.wf/e/${episode.doodstream}?controls=1`}
+                src={`https://cybervynx.com/e/${episode.doodstream}?controls=1`}
                 className="absolute top-0 left-0 w-full h-full"
                 allowFullScreen 
                 frameBorder="0"
                 scrolling="no"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
+                // sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
@@ -159,7 +182,7 @@ function WatchAnime() {
                 allow="autoplay; fullscreen"
                 scrolling="no"
                 frameBorder="0"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
+                // sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
@@ -263,36 +286,62 @@ function WatchAnime() {
       </div>
 
       {/* All Episodes Section */}
-      <div className="bg-gray-800 rounded-lg p-4 md:p-6 mb-8 md:mb-12">
+      <div className="mt-8">
         <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">All Episodes</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4">
-          {season.episodes.map((ep) => (
-            <Link
-              key={ep._id}
-              to={`/watch/${animeId}/${seasonId}/${ep._id}`}
-              className={`relative group ${ep._id === episodeId ? 'ring-2 ring-[#f47521]' : ''}`}
-            >
-              <img
-                src={ep.thumbnail}
-                alt={ep.title}
-                className="w-full aspect-video object-cover rounded-md"
-              />
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-white font-medium text-sm md:text-base">Episode {ep.number}</span>
-              </div>
-              {/* Mobile-friendly indicator for current episode */}
-              {ep._id === episodeId && (
-                <div className="absolute bottom-0 left-0 right-0 bg-[#f47521] text-white text-xs text-center py-1 md:hidden">
-                  Current
-                </div>
-              )}
-            </Link>
-          ))}
+        <div className="relative bg-[#141821] rounded-lg">
+          <div 
+            ref={scrollContainerRef}
+            className="overflow-x-auto no-scrollbar touch-pan-x"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <div className="flex space-x-4 p-4" style={{ minWidth: 'min-content' }}>
+              {season.episodes.map((ep) => (
+                <Link
+                  key={ep._id}
+                  to={`/watch/${animeId}/${seasonId}/${ep._id}`}
+                  className={`relative group flex-shrink-0 w-[160px] md:w-[200px] bg-[#1e2330] rounded-lg overflow-hidden transition-transform hover:scale-105 ${ep._id === episodeId ? 'ring-2 ring-[#f47521]' : ''}`}
+                >
+                  <div className="relative">
+                    <img
+                      src={ep.thumbnail}
+                      alt={ep.title}
+                      className="w-full aspect-video object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white font-medium text-sm md:text-base">Episode {ep.number}</span>
+                    </div>
+                    {/* Current episode indicator */}
+                    {ep._id === episodeId && (
+                      <div className="absolute top-0 left-0 right-0 bg-[#f47521] text-white text-xs text-center py-1">
+                        Now Playing
+                      </div>
+                    )}
+                    {ep.isNew && (
+                      <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#f47521] text-white text-xs rounded-full">
+                        New
+                      </div>
+                    )}
+                  </div>
+                  {/* Episode info below thumbnail */}
+                  <div className="p-3">
+                    <p className="text-sm font-medium text-white truncate">Episode {ep.number}</p>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{ep.title}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+          {/* Gradient shadows for scroll indication */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#141821] to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#141821] to-transparent pointer-events-none" />
         </div>
       </div>
 
       {/* Recommendations Section */}
-      <div className="space-y-4 md:space-y-8">
+      <div className="mt-16 md:mt-24 space-y-4 md:space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="text-lg md:text-2xl font-bold">Recommended for You</h2>
           <div className="text-xs md:text-sm text-gray-400">Based on your watch history</div>

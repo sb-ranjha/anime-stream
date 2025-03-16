@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronDown } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
 
 interface SearchResult {
@@ -12,6 +12,7 @@ interface SearchResult {
 function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
@@ -20,6 +21,18 @@ function Navbar() {
   const { animes } = useAnime();
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const categoriesRef = useRef<HTMLDivElement>(null);
+
+  const categories = [
+    { name: 'Action', color: 'from-red-800 to-red-600' },
+    { name: 'Romance', color: 'from-purple-800 to-purple-600' },
+    { name: 'Comedy', color: 'from-yellow-800 to-green-600' },
+    { name: 'Drama', color: 'from-blue-800 to-blue-600' },
+    { name: 'Fantasy', color: 'from-purple-800 to-purple-600' },
+    { name: 'Horror', color: 'from-red-900 to-red-800' },
+    { name: 'Mystery', color: 'from-blue-900 to-blue-700' },
+    { name: 'Sci-Fi', color: 'from-teal-800 to-teal-600' }
+  ];
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -81,6 +94,20 @@ function Navbar() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  // Handle click outside categories
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (categoriesRef.current && !categoriesRef.current.contains(event.target as Node)) {
+        setIsCategoriesOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-black/80 backdrop-blur-2xl fixed w-full top-0 z-50 transition-all duration-200 border-b border-white/5">
@@ -176,51 +203,90 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Search */}
-          <div ref={searchRef} className="relative">
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 lg:p-2.5 text-white hover:bg-white/5 rounded-lg transition-all"
-              aria-label="Search"
-            >
-              <Search className="h-6 w-6 lg:h-7 lg:w-7" />
-            </button>
+          {/* Categories and Search */}
+          <div className="flex items-center gap-2">
+            {/* Categories Dropdown */}
+            <div ref={categoriesRef} className="relative">
+              <button
+                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                className="p-2 lg:p-2.5 text-white hover:bg-white/5 rounded-lg transition-all flex items-center gap-2"
+              >
+                <span className="hidden lg:inline">Browse</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            {isSearchOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-black/90 backdrop-blur-2xl rounded-xl shadow-xl border border-white/10 overflow-hidden mx-4 sm:mx-0">
-                <form onSubmit={handleSearch} className="relative">
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search anime..."
-                    className="w-full px-4 py-3 lg:px-5 lg:py-4 text-white bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-gray-400 text-base"
-                  />
-                  {searchResults.length > 0 && (
-                    <div className="border-t border-white/10 py-2 max-h-80 overflow-auto">
-                      {searchResults.map(result => (
+              {/* Categories Dropdown Menu */}
+              {isCategoriesOpen && (
+                <div className="absolute right-0 mt-2 w-[280px] sm:w-[320px] bg-black/90 backdrop-blur-2xl rounded-lg shadow-xl border border-white/10 overflow-hidden">
+                  <div className="p-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-1.5">
+                      {categories.map((category) => (
                         <Link
-                          key={result._id}
-                          to={`/anime/${result._id}`}
-                          className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg"
-                          onClick={() => setSearchQuery('')}
+                          key={category.name}
+                          to={`/category/${category.name.toLowerCase()}`}
+                          className="group relative overflow-hidden rounded-md aspect-[3/1]"
+                          onClick={() => setIsCategoriesOpen(false)}
                         >
-                          <img
-                            src={result.image}
-                            alt={result.title}
-                            className="w-10 h-14 lg:w-12 lg:h-16 object-cover rounded-lg"
-                          />
-                          <span className="text-sm lg:text-base text-white line-clamp-2 font-medium">
-                            {result.title}
-                          </span>
+                          <div className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-90 group-hover:opacity-100 transition-opacity`} />
+                          <div className="relative h-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-white">
+                              {category.name}
+                            </span>
+                          </div>
                         </Link>
                       ))}
                     </div>
-                  )}
-                </form>
-              </div>
-            )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Search */}
+            <div ref={searchRef} className="relative">
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="p-2 lg:p-2.5 text-white hover:bg-white/5 rounded-lg transition-all"
+                aria-label="Search"
+              >
+                <Search className="h-6 w-6 lg:h-7 lg:w-7" />
+              </button>
+
+              {isSearchOpen && (
+                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-black/90 backdrop-blur-2xl rounded-xl shadow-xl border border-white/10 overflow-hidden mx-4 sm:mx-0">
+                  <form onSubmit={handleSearch} className="relative">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search anime..."
+                      className="w-full px-4 py-3 lg:px-5 lg:py-4 text-white bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-gray-400 text-base"
+                    />
+                    {searchResults.length > 0 && (
+                      <div className="border-t border-white/10 py-2 max-h-80 overflow-auto">
+                        {searchResults.map(result => (
+                          <Link
+                            key={result._id}
+                            to={`/anime/${result._id}`}
+                            className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg"
+                            onClick={() => setSearchQuery('')}
+                          >
+                            <img
+                              src={result.image}
+                              alt={result.title}
+                              className="w-10 h-14 lg:w-12 lg:h-16 object-cover rounded-lg"
+                            />
+                            <span className="text-sm lg:text-base text-white line-clamp-2 font-medium">
+                              {result.title}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </form>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

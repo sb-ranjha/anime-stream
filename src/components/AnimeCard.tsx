@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 interface Episode {
-  id: string;
+  _id: string;
   title: string;
   number: number;
   doodstream?: string;
@@ -16,7 +16,7 @@ interface Episode {
 }
 
 interface Season {
-  id: string;
+  _id: string;
   number: number;
   episodes: Episode[];
 }
@@ -34,6 +34,7 @@ interface Anime {
   isHindiDub?: boolean;
   isTeluguDub?: boolean;
   isNewEpisode?: boolean;
+  isMovie?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }

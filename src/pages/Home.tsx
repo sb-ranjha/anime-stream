@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Calendar, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Calendar, Star, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
 import AnimeCard from '../components/AnimeCard';
 import { Link } from 'react-router-dom';
@@ -11,7 +11,6 @@ interface Episode {
   title: string;
   duration: string;
   releaseDate: string;
-  isNew?: boolean;
   thumbnail?: string;
   doodstream?: string;
   megacloud?: string;
@@ -43,12 +42,17 @@ interface Anime {
   updatedAt?: any;
 }
 
+const ITEMS_PER_PAGE = 10; // Number of items to show per load
+
 function Home() {
   const { trending, animes } = useAnime();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [visibleAnimes, setVisibleAnimes] = useState<typeof animes>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   
   const VISIBLE_CARDS = 5; // Number of visible cards in desktop view
   const AUTO_PLAY_INTERVAL = 5000; // 5 seconds
@@ -130,6 +134,26 @@ function Home() {
 
   // Filter movies
   const movies = animes.filter(anime => anime.isMovie);
+
+  // Initialize with first page of items
+  useEffect(() => {
+    setVisibleAnimes(animes.slice(0, ITEMS_PER_PAGE));
+  }, [animes]);
+
+  const loadMore = () => {
+    setLoading(true);
+    // Simulate network delay for smooth loading experience
+    setTimeout(() => {
+      const nextPage = currentPage + 1;
+      const startIndex = 0;
+      const endIndex = nextPage * ITEMS_PER_PAGE;
+      setVisibleAnimes(animes.slice(startIndex, endIndex));
+      setCurrentPage(nextPage);
+      setLoading(false);
+    }, 500);
+  };
+
+  const hasMoreItems = visibleAnimes.length < animes.length;
 
   return (
     <div className="pt-14 bg-black">
@@ -567,46 +591,70 @@ function Home() {
         <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
           <div className="flex space-x-4 md:space-x-6 w-max pb-4">
             {animes
-              .filter(anime => {
-                return anime.seasons.some(season => 
-                  season.episodes.some(episode => episode.isNew === true)
-                );
+              .flatMap(anime => 
+                anime.seasons.flatMap(season =>
+                  season.episodes.map(episode => ({
+                    anime,
+                    episode,
+                    releaseDate: new Date(episode.releaseDate)
+                  }))
+                )
+              )
+              .filter(({ releaseDate }) => {
+                const now = new Date();
+                const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return releaseDate >= sevenDaysAgo;
               })
-              .slice(0, 20)
-              .map((anime) => {
-                const latestNewEpisode = anime.seasons
-                  .flatMap(season => season.episodes)
-                  .filter(episode => episode.isNew === true)
-                  .sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())[0];
+              .sort((a, b) => b.releaseDate.getTime() - a.releaseDate.getTime())
+              .map(({ anime, episode }) => {
+                // Find the season that contains this episode
+                const season = anime.seasons.find(season => 
+                  season.episodes.some(ep => ep._id === episode._id)
+                );
 
-                if (!latestNewEpisode) return null;
+                const daysAgo = Math.ceil(
+                  (new Date().getTime() - new Date(episode.releaseDate).getTime()) / 
+                  (1000 * 60 * 60 * 24)
+                );
 
                 return (
                   <Link 
-                    key={anime._id} 
-                    to={`/watch/${anime._id}/episode/${latestNewEpisode._id}`} 
+                    key={`${anime._id}-${episode._id}`}
+                    to={`/watch/${anime._id}/${season?._id}/${episode._id}`} 
                     className="block w-[160px] md:w-[240px] flex-shrink-0"
+                    onClick={() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                   >
-                    <div className="anime-card">
+                    <div className="anime-card relative group">
                       <img
-                        src={latestNewEpisode.thumbnail || anime.image}
-                        alt={anime.title}
+                        src={episode.thumbnail || anime.image}
+                        alt={`${anime.title} Episode ${episode.number}`}
+                        className="w-full h-[220px] md:h-[320px] object-cover rounded-lg"
                         loading="lazy"
                       />
-                      <div className="overlay" />
-                      <div className="badge bg-[#f47521]">EP {latestNewEpisode.number}</div>
-                      <div className="content">
-                        <h3 className="title">{anime.title}</h3>
-                        <div className="metadata">
-                          <div className="rating">
-                            <Star className="rating-star" />
+                      <div className="overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-lg" />
+                      <div className="badge absolute top-2 right-2 bg-[#f47521] text-white px-2 py-1 rounded-md flex items-center gap-1.5 text-sm">
+                        <span>EP {episode.number}</span>
+                        <span className={`text-[10px] font-medium ${daysAgo === 1 ? 'text-white' : 'text-white/75'}`}>
+                          {daysAgo}d
+                        </span>
+                      </div>
+                      <div className="content absolute bottom-0 left-0 right-0 p-3 text-white">
+                        <h3 className="title text-sm md:text-base font-semibold line-clamp-1">{anime.title}</h3>
+                        <div className="metadata flex items-center gap-2 text-xs text-white/70 mt-1">
+                          <div className="rating flex items-center gap-1">
+                            <Star className="w-3 h-3 text-yellow-400" />
                             <span>{anime.rating.toFixed(1)}</span>
                           </div>
                           <span className="text-[#f47521]">•</span>
                           <span>{anime.category}</span>
                         </div>
                         <p className="text-[10px] md:text-xs text-white/70 mt-1 line-clamp-1">
-                          {latestNewEpisode.title} • {latestNewEpisode.duration}
+                          {episode.title} • {episode.duration}
+                        </p>
+                        <p className="text-[8px] md:text-[10px] text-white/50 mt-0.5">
+                          Released {new Date(episode.releaseDate).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -638,6 +686,66 @@ function Home() {
               <AnimeCard key={anime._id} anime={anime} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* All Anime Section with Load More */}
+      <section className="py-12 bg-[#1a1b1f]">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-white mb-8">All Anime</h2>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            {visibleAnimes.map((anime) => (
+              <Link
+                key={anime._id}
+                to={`/anime/${anime._id}`}
+                className="group relative overflow-hidden rounded-xl aspect-[2/3] bg-[#141821] hover:scale-105 transition-transform duration-300"
+              >
+                <img
+                  src={anime.image}
+                  alt={anime.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                  <h3 className="text-white font-medium text-sm sm:text-base line-clamp-2">
+                    {anime.title}
+                  </h3>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-xs text-[#f47521]">★ {anime.rating.toFixed(1)}</span>
+                    <span className="text-xs text-gray-400">
+                      {anime.seasons.length} Season{anime.seasons.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {hasMoreItems && (
+            <div className="mt-12 text-center">
+              <button
+                onClick={loadMore}
+                disabled={loading}
+                className="inline-flex items-center justify-center px-8 py-4 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-all transform hover:scale-105 gap-3 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                {loading ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <span className="text-sm text-gray-400">
+                      ({visibleAnimes.length} of {animes.length})
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
