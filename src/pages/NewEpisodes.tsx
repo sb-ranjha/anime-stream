@@ -1,67 +1,91 @@
 import React from 'react';
+import { useAnime } from '../context/AnimeContext';
 import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
-import { useAnime } from '../context/AnimeContext';
 
 function NewEpisodes() {
   const { animes } = useAnime();
-  const animesWithNewEpisodes = animes.filter(anime => 
-    anime.seasons.some(season => 
-      season.episodes.some(episode => episode.isNew)
+
+  // Get all episodes from the last 7 days
+  const newEpisodes = animes
+    .flatMap(anime => 
+      anime.seasons.flatMap(season =>
+        season.episodes.map(episode => ({
+          anime,
+          episode,
+          season,
+          releaseDate: new Date(episode.releaseDate)
+        }))
+      )
     )
-  );
+    .filter(({ releaseDate }) => {
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return releaseDate >= sevenDaysAgo;
+    })
+    .sort((a, b) => b.releaseDate.getTime() - a.releaseDate.getTime());
 
   return (
-    <div className="pt-14 bg-white dark:bg-[#141821]">
+    <div className="pt-20 min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold">
-            <span className="text-[#f47521]">New</span> Episodes
-          </h1>
-          <div className="text-sm text-gray-500">
-            {animesWithNewEpisodes.length} {animesWithNewEpisodes.length === 1 ? 'Anime' : 'Animes'}
-          </div>
-        </div>
+        <h1 className="text-2xl md:text-4xl font-bold mb-8">
+          <span className="text-[#f47521]">New</span> Episodes
+          <span className="ml-3 text-sm text-gray-400">({newEpisodes.length} episodes)</span>
+        </h1>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-          {animesWithNewEpisodes.map((anime) => {
-            const latestNewEpisode = anime.seasons
-              .flatMap(season => season.episodes)
-              .filter(episode => episode.isNew)
-              .sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())[0];
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          {newEpisodes.map(({ anime, episode, season }) => {
+            const daysAgo = Math.ceil(
+              (new Date().getTime() - new Date(episode.releaseDate).getTime()) / 
+              (1000 * 60 * 60 * 24)
+            );
 
             return (
               <Link 
-                key={anime._id}
-                to={`/anime/${anime._id}`}
-                className="group relative"
+                key={`${anime._id}-${episode._id}`}
+                to={`/watch/${anime._id}/${season._id}/${episode._id}`}
+                className="block group"
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-xl">
+                <div className="relative aspect-video md:aspect-[2/3] rounded-lg overflow-hidden bg-gray-800">
                   <img
-                    src={latestNewEpisode?.thumbnail || anime.image}
-                    alt={anime.title}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                    src={episode.thumbnail || anime.image}
+                    alt={`${anime.title} Episode ${episode.number}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    loading="lazy"
                   />
-                  <div className="absolute top-2 right-2">
-                    <span className="px-2 py-1 bg-[#f47521] text-white text-xs font-bold rounded">
-                      Episode {latestNewEpisode?.number}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  
+                  {/* Episode badge with days ago */}
+                  <div className="absolute top-2 right-2 bg-[#f47521] text-white px-2 py-1 rounded-md flex items-center gap-1.5 text-sm">
+                    <span>EP {episode.number}</span>
+                    <span className={`text-[10px] font-medium ${daysAgo === 1 ? 'text-white' : 'text-white/75'}`}>
+                      {daysAgo}d
                     </span>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                    <h3 className="text-base font-semibold text-white mb-2">{anime.title}</h3>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-500" />
-                        <span className="text-gray-300">{anime.rating.toFixed(1)}</span>
+
+                  <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                    <h3 className="text-sm md:text-base font-semibold line-clamp-2 mb-1">
+                      {anime.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-2 text-xs text-white/70">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-400" />
+                        <span>{anime.rating.toFixed(1)}</span>
                       </div>
-                      <span className="text-gray-300 text-sm">{anime.category}</span>
+                      <span className="text-[#f47521]">•</span>
+                      <span>{anime.category}</span>
                     </div>
-                    {latestNewEpisode && (
-                      <p className="text-xs text-gray-400">
-                        {latestNewEpisode.title} • {latestNewEpisode.duration}
-                      </p>
-                    )}
+
+                    <p className="text-[10px] md:text-xs text-white/70 mt-1 line-clamp-1">
+                      {episode.title} • {episode.duration}
+                    </p>
+                    <p className="text-[8px] md:text-[10px] text-white/50 mt-0.5">
+                      Released {new Date(episode.releaseDate).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </Link>
@@ -69,10 +93,9 @@ function NewEpisodes() {
           })}
         </div>
 
-        {animesWithNewEpisodes.length === 0 && (
-          <div className="text-center py-16">
-            <h3 className="text-xl text-gray-400 mb-4">No new episodes available</h3>
-            <p className="text-gray-500">Check back later for updates</p>
+        {newEpisodes.length === 0 && (
+          <div className="text-center text-gray-400 py-12">
+            No new episodes in the last 7 days.
           </div>
         )}
       </div>

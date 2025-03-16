@@ -15,6 +15,7 @@ import CategoryPage from './pages/CategoryPage';
 import Movies from './pages/Movies';
 import WatchMovie from './pages/WatchMovie';
 import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 import { AnimeProvider } from './context/AnimeContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/movies" element={<Movies />} />
                 <Route path="/category/:category" element={<CategoryPage />} />
                 <Route path="/watch/:id" element={<WatchMovie />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />

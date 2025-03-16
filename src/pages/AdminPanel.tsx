@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -105,6 +105,10 @@ const AdminPanel = () => {
     duration: string;
     releaseDate: string;
   }>>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const animeForm = useForm<AnimeFormData>({
     resolver: zodResolver(animeSchema),
@@ -335,6 +339,25 @@ const AdminPanel = () => {
   const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime' | 'movies') => {
     setActiveSection(section);
     setFilterCategory(''); // Reset category filter when changing sections
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
   };
 
   return (
@@ -762,7 +785,7 @@ const AdminPanel = () => {
                       </div>
 
                       {selectedSeason === season._id && (
-                                <div className="mt-4 space-y-4">
+                                <div className="mt-4">
                                   {/* Episode Form */}
                                   <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-xl p-8 mb-6">
                                     <h3 className="text-2xl font-semibold mb-8 flex items-center text-white">
@@ -894,48 +917,55 @@ const AdminPanel = () => {
                                   </form>
 
                                   {/* Episode List */}
-                                  <div className="space-y-3">
+                                  <div className="relative">
+                                    <div 
+                                      ref={scrollContainerRef}
+                                      className="overflow-x-auto no-scrollbar touch-pan-x"
+                                      onTouchStart={handleTouchStart}
+                                      onTouchMove={handleTouchMove}
+                                      onTouchEnd={handleTouchEnd}
+                                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                    >
+                                      <div className="flex space-x-4 pb-4" style={{ minWidth: 'min-content' }}>
                             {season.episodes.map((episode) => (
                                       <div 
                                         key={episode._id} 
-                                        className="bg-gray-700 rounded-lg p-4 flex items-center justify-between group hover:bg-gray-600 transition-colors"
+                                            className="flex-shrink-0 w-[280px] bg-gray-700 rounded-lg overflow-hidden group hover:bg-gray-600 transition-colors"
                                       >
-                                        <div className="flex items-center gap-4">
-                                          <div className="h-16 w-28 rounded-md overflow-hidden">
+                                            <div className="relative">
                                             <img 
                                               src={episode.thumbnail} 
                                               alt={episode.title}
-                                              className="w-full h-full object-cover"
+                                                className="w-full aspect-video object-cover"
                                             />
-                                          </div>
-                                <div>
-                                            <h4 className="font-medium flex items-center gap-2">
-                                              Episode {episode.number}
                                               {episode.isNew && (
-                                                <span className="px-2 py-0.5 bg-[#f47521] text-white text-xs rounded-full">New</span>
+                                                <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#f47521] text-white text-xs rounded-full">
+                                                  New
+                                                </div>
                                               )}
-                                            </h4>
-                                            <p className="text-sm text-gray-400">{episode.title}</p>
-                                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                                            </div>
+                                            <div className="p-4">
+                                              <h4 className="font-medium">Episode {episode.number}</h4>
+                                              <p className="text-sm text-gray-400 truncate">{episode.title}</p>
+                                              <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                                               <span>{episode.duration}</span>
                                               <span>•</span>
                                               <span>{new Date(episode.releaseDate).toLocaleDateString()}</span>
                                             </div>
-                                            {/* Add video source indicators */}
-                                            <div className="flex items-center gap-2 mt-2">
+                                              {/* Video source indicators */}
+                                              <div className="flex flex-wrap gap-2 mt-3">
                                               {episode.doodstream && (
-                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">VidSrc</span>
+                                                  <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">VidSrc</span>
                                               )}
                                               {episode.megacloud && (
-                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">MegaCloud</span>
+                                                  <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">MegaCloud</span>
                                               )}
                                               {episode.mega && (
-                                                <span className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full">Mega</span>
+                                                  <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">Mega</span>
                                               )}
                                             </div>
-                                          </div>
-                                </div>
-                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                              {/* Action buttons */}
+                                              <div className="flex items-center gap-2 mt-4">
                                           <button
                                             onClick={() => {
                                               if (editingEpisode?._id === episode._id) {
@@ -960,19 +990,25 @@ const AdminPanel = () => {
                                                 });
                                               }
                                             }}
-                                            className="p-2 rounded-full hover:bg-gray-500 transition-colors"
+                                                  className="flex-1 px-3 py-1.5 bg-gray-600 text-white text-sm rounded hover:bg-gray-500 transition-colors"
                                           >
-                                            <Edit2 className="h-4 w-4" />
+                                                  Edit
                                           </button>
                                 <button
                                             onClick={() => handleDeleteClick('episode', episode._id, episode.title, anime._id, season._id)}
-                                            className="p-2 rounded-full hover:bg-red-500 transition-colors"
+                                                  className="flex-1 px-3 py-1.5 bg-red-600/20 text-red-500 text-sm rounded hover:bg-red-600/30 transition-colors"
                                 >
-                                  <Trash className="h-4 w-4" />
+                                                  Delete
                                 </button>
+                                              </div>
                                         </div>
                               </div>
                             ))}
+                                      </div>
+                                    </div>
+                                    {/* Gradient shadows for scroll indication */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#141821] to-transparent pointer-events-none" />
+                                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#141821] to-transparent pointer-events-none" />
                           </div>
                         </div>
                       )}
