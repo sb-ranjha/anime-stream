@@ -26,11 +26,12 @@ function NewEpisodes() {
     .sort((a, b) => b.releaseDate.getTime() - a.releaseDate.getTime());
 
   return (
-    <div className="pt-20 min-h-screen bg-black">
+    <div className="pt-20 min-h-screen bg-[#141821]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-2xl md:text-4xl font-bold mb-8">
-          <span className="text-[#f47521]">New</span> Episodes
-          <span className="ml-3 text-sm text-gray-400">({newEpisodes.length} episodes)</span>
+          <span className="text-[#f47521]">New</span>
+          <span className="text-white"> Episodes</span>
+          <span className="ml-3 text-sm text-white/70">({newEpisodes.length} episodes)</span>
         </h1>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
@@ -43,10 +44,10 @@ function NewEpisodes() {
             return (
               <Link 
                 key={`${anime._id}-${episode._id}`}
-                to={`/watch/${anime._id}/${season._id}/${episode._id}`}
+                to={`/watch/anime/${anime._id}/${season._id}/${episode._id}`}
                 className="block group"
               >
-                <div className="relative aspect-video md:aspect-[2/3] rounded-lg overflow-hidden bg-gray-800">
+                <div className="relative aspect-video md:aspect-[2/3] rounded-lg overflow-hidden bg-[#1a1f2c]">
                   <img
                     src={episode.thumbnail || anime.image}
                     alt={`${anime.title} Episode ${episode.number}`}
@@ -58,29 +59,29 @@ function NewEpisodes() {
                   {/* Episode badge with days ago */}
                   <div className="absolute top-2 right-2 bg-[#f47521] text-white px-2 py-1 rounded-md flex items-center gap-1.5 text-sm">
                     <span>EP {episode.number}</span>
-                    <span className={`text-[10px] font-medium ${daysAgo === 1 ? 'text-white' : 'text-white/75'}`}>
+                    <span className={`text-[10px] font-medium ${daysAgo === 1 ? 'text-white' : 'text-white/90'}`}>
                       {daysAgo}d
                     </span>
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                    <h3 className="text-sm md:text-base font-semibold line-clamp-2 mb-1">
+                    <h3 className="text-sm md:text-base font-semibold line-clamp-2 mb-1 text-white">
                       {anime.title}
                     </h3>
                     
-                    <div className="flex items-center gap-2 text-xs text-white/70">
+                    <div className="flex items-center gap-2 text-xs text-white">
                       <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 text-yellow-400" />
-                        <span>{anime.rating.toFixed(1)}</span>
+                        <Star className="w-3 h-3 text-[#f47521]" />
+                        <span className="text-white">{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
 
-                    <p className="text-[10px] md:text-xs text-white/70 mt-1 line-clamp-1">
+                    <p className="text-[10px] md:text-xs text-white/90 mt-1 line-clamp-1">
                       {episode.title} • {episode.duration}
                     </p>
-                    <p className="text-[8px] md:text-[10px] text-white/50 mt-0.5">
+                    <p className="text-[8px] md:text-[10px] text-white/70 mt-0.5">
                       Released {new Date(episode.releaseDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -91,7 +92,7 @@ function NewEpisodes() {
         </div>
 
         {newEpisodes.length === 0 && (
-          <div className="text-center text-gray-400 py-12">
+          <div className="text-center text-white/70 py-12">
             No new episodes in the last 7 days.
           </div>
         )}

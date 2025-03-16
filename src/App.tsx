@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -20,44 +20,30 @@ import { AnimeProvider } from './context/AnimeContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
+import { MovieProvider } from './context/MovieContext';
+import MovieAdminPanel from './pages/MovieAdminPanel';
+import { ThemeProvider } from './context/ThemeContext';
+import AppRoutes from './routes/AppRoutes';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <AnimeProvider>
-          <div className="flex flex-col min-h-screen bg-black text-gray-100">
-            <ScrollToTop />
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/login" element={<Login />} />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute>
-                      <AdminPanel />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route path="/anime/:_id" element={<AnimeDetails />} />
-                <Route path="/watch/:animeId/:seasonId/:episodeId" element={<WatchAnime />} />
-                <Route path="/category/season-trending" element={<SeasonTrending />} />
-                <Route path="/category/hindi-dub" element={<HindiDubbed />} />
-                <Route path="/category/telugu-dub" element={<TeluguDubbed />} />
-                <Route path="/new-episodes" element={<NewEpisodes />} />
-                <Route path="/movies" element={<Movies />} />
-                <Route path="/category/:category" element={<CategoryPage />} />
-                <Route path="/watch/:id" element={<WatchMovie />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </AnimeProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AnimeProvider>
+            <MovieProvider>
+              <ScrollToTop />
+              <Navbar />
+              <main className="min-h-screen bg-[#141821]">
+                <AppRoutes />
+              </main>
+              <Footer />
+            </MovieProvider>
+          </AnimeProvider>
+          <Toaster position="bottom-right" />
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

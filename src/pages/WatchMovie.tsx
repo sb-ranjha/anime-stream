@@ -1,176 +1,169 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useAnime } from '../context/AnimeContext';
-import { Play, Star, Clock, Calendar } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useMovie } from '../context/MovieContext';
+import { Play, ArrowLeft } from 'lucide-react';
 
 const WatchMovie = () => {
-  const { id } = useParams();
-  const { animes } = useAnime();
-  const [activeSource, setActiveSource] = useState('doodstream');
-  const [movie, setMovie] = useState<any>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const { movieId } = useParams();
+  const { movies, loading } = useMovie();
+  const navigate = useNavigate();
+  const [activeSource, setActiveSource] = useState<'streamHG' | 'doodstream' | 'megacloud' | 'streamtape'>('streamHG');
+  const [isLoading, setIsLoading] = useState(true);
+  const [videoError, setVideoError] = useState(false);
 
-  useEffect(() => {
-    const currentMovie = animes.find(anime => anime._id === id);
-    setMovie(currentMovie);
+  // Find movie first
+  const movie = movies.find(m => m._id === movieId);
 
-    // Get recommendations based on category
-    if (currentMovie) {
-      const similarMovies = animes.filter(anime => 
-        anime.isMovie && 
-        anime._id !== id && 
-        (anime.category === currentMovie.category || anime.rating >= currentMovie.rating)
-      ).slice(0, 12);
-      setRecommendations(similarMovies);
+  // Helper function to get video URL
+  const getVideoUrl = (source: string | undefined, type: 'streamHG' | 'doodstream' | 'megacloud' | 'streamtape') => {
+    if (!source) return null;
+    
+    switch (type) {
+      case 'streamHG':
+        return `https://cybervynx.com/e/${source}`;
+      case 'doodstream':
+        return `https://doodstream.com/e/${source}`;
+      case 'megacloud':
+        return `https://megacloud.tv/embed-${source}`;
+      case 'streamtape':
+        return `https://streamtape.com/e/${source}`;
+      default:
+        return null;
     }
-  }, [id, animes]);
+  };
 
-  if (!movie) {
+  // Handle loading state
+  useEffect(() => {
+    setIsLoading(true);
+    setVideoError(false);
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [movieId, activeSource]);
+
+  // Find first available source
+  useEffect(() => {
+    if (movie && !movie[activeSource]) {
+      const availableSource = ['streamHG', 'doodstream', 'megacloud', 'streamtape'].find(
+        source => movie[source as keyof typeof movie]
+      );
+      if (availableSource) {
+        setActiveSource(availableSource as typeof activeSource);
+      }
+    }
+  }, [movie, activeSource]);
+
+  // Show loading state
+  if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-[#141821] pt-20 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-[#141821] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#f47521]"></div>
       </div>
     );
   }
 
-  const getVideoUrl = (source: string) => {
-    switch (source) {
-      case 'doodstream':
-        return `https://dood.wf/e/${movie.seasons[0]?.episodes[0]?.doodstream}`;
-      case 'megacloud':
-        return `https://megacloud.tv/embed-1/e-1/${movie.seasons[0]?.episodes[0]?.megacloud}`;
-      case 'streamtape':
-        return `https://streamtape.com/e/${movie.seasons[0]?.episodes[0]?.streamtape}`;
-      default:
-        return '';
-    }
+  // Show not found state
+  if (!movie) {
+    return (
+      <div className="min-h-screen bg-[#141821] flex flex-col items-center justify-center p-4">
+        <p className="text-xl text-gray-400 mb-4">Movie not found</p>
+        <button
+          onClick={() => navigate('/movies')}
+          className="flex items-center gap-2 px-4 py-2 bg-[#f47521] text-white rounded-md hover:bg-[#f47521]/80 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Movies
+        </button>
+      </div>
+    );
+  }
+
+  const currentVideoUrl = getVideoUrl(movie[activeSource], activeSource);
+
+  const handleVideoError = () => {
+    setVideoError(true);
   };
 
   return (
-    <div className="min-h-screen bg-[#141821] pt-20">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Video Player Section */}
-        <div className="bg-black/50 rounded-lg overflow-hidden mb-8">
-          <div className="relative pt-[56.25%]">
-            <iframe
-              src={getVideoUrl(activeSource)}
-              className="absolute inset-0 w-full h-full"
-              allowFullScreen
-              allow="autoplay; fullscreen"
-            />
+    <div className="min-h-screen bg-[#141821] pt-16">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+          {/* Video Player */}
+          <div className="relative aspect-video">
+            {currentVideoUrl ? (
+              <>
+                <iframe
+                  src={currentVideoUrl}
+                  className="absolute inset-0 w-full h-full"
+                  allowFullScreen
+                  allow="autoplay; fullscreen"
+                  style={{ border: 'none' }}
+                  onError={handleVideoError}
+                />
+                {videoError && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80">
+                    <div className="text-center p-4">
+                      <p className="text-gray-400 mb-2">Failed to load video from {activeSource}</p>
+                      <p className="text-gray-500 text-sm">Please try another source</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                <div className="text-center p-4">
+                  <p className="text-gray-400 mb-2">No video source available</p>
+                  <p className="text-gray-500 text-sm">Please try another source</p>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Video Sources */}
-        <div className="flex gap-4 mb-8">
-          {movie.seasons[0]?.episodes[0]?.doodstream && (
-            <button
-              onClick={() => setActiveSource('doodstream')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                activeSource === 'doodstream' 
-                  ? 'bg-[#f47521] text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              VidSrc
-            </button>
-          )}
-          {movie.seasons[0]?.episodes[0]?.megacloud && (
-            <button
-              onClick={() => setActiveSource('megacloud')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                activeSource === 'megacloud' 
-                  ? 'bg-[#f47521] text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              MegaCloud
-            </button>
-          )}
-          {movie.seasons[0]?.episodes[0]?.streamtape && (
-            <button
-              onClick={() => setActiveSource('streamtape')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                activeSource === 'streamtape' 
-                  ? 'bg-[#f47521] text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              StreamTape
-            </button>
-          )}
+          {/* Video Sources */}
+          <div className="p-4 border-t border-gray-700">
+            <div className="flex flex-wrap gap-2">
+              {(['streamHG', 'doodstream', 'megacloud', 'streamtape'] as const).map(source => {
+                if (!movie[source]) return null;
+                return (
+                  <button
+                    key={source}
+                    onClick={() => {
+                      setActiveSource(source);
+                      setVideoError(false);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      activeSource === source
+                        ? 'bg-[#f47521] text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    <Play className="h-4 w-4" />
+                    {source.charAt(0).toUpperCase() + source.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Movie Info */}
-        <div className="bg-gray-800/50 rounded-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-48 shrink-0">
-              <img 
-                src={movie.image} 
-                alt={movie.title}
-                className="w-full rounded-lg"
-              />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white mb-2">{movie.title}</h1>
-              
-              <div className="flex items-center gap-4 text-sm text-gray-300 mb-4">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-[#f47521]" />
-                  <span>{movie.rating.toFixed(1)}</span>
-                </div>
-                <span>•</span>
-                <span>{movie.category}</span>
-                <span>•</span>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>2h 30m</span>
-                </div>
-                <span>•</span>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>2024</span>
-                </div>
-              </div>
-
-              <p className="text-gray-300 mb-6">{movie.description}</p>
-            </div>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="aspect-[2/3] rounded-lg overflow-hidden bg-gray-800/50">
+            <img
+              src={movie.thumbnail}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
-
-        {/* Recommendations */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-white mb-6">More Like This</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {recommendations.map((rec) => (
-              <Link 
-                key={rec._id} 
-                to={`/watch/${rec._id}`}
-                className="group"
-              >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-gray-800 mb-2">
-                  <img
-                    src={rec.image}
-                    alt={rec.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-12 h-12 rounded-full bg-[#f47521]/90 flex items-center justify-center">
-                      <Play className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-white font-medium text-sm line-clamp-1">{rec.title}</h3>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-[#f47521]">{rec.category}</span>
-                  <span className="text-gray-400">•</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-[#f47521]" />
-                    <span className="text-gray-400">{rec.rating.toFixed(1)}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="md:col-span-2 space-y-4">
+            <h1 className="text-3xl font-bold text-white">{movie.title}</h1>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400">
+              <span>{movie.duration}</span>
+              <span>•</span>
+              <span>{movie.genre.join(', ')}</span>
+              <span>•</span>
+              <span>{new Date(movie.releaseDate).getFullYear()}</span>
+            </div>
+            <p className="text-gray-300 leading-relaxed">{movie.description}</p>
           </div>
         </div>
       </div>

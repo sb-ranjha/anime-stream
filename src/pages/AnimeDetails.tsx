@@ -112,7 +112,7 @@ function AnimeDetails() {
                   {anime.description}
                 </p>
                 <Link
-                  to={`/watch/${anime._id}/${anime.seasons[0]?._id}/${anime.seasons[0]?.episodes[0]?._id}`}
+                  to={`/watch/anime/${anime._id}/${anime.seasons[0]?._id}/${anime.seasons[0]?.episodes[0]?._id}`}
                   className="inline-flex items-center px-6 py-3 bg-[#f47521] text-white text-sm font-medium rounded-lg hover:bg-[#ff8a3d] transition-colors"
                 >
                   <Play className="h-4 w-4 mr-2" />
@@ -158,7 +158,7 @@ function AnimeDetails() {
                 </div>
                 <p className="text-gray-300 mb-6 max-w-3xl">{anime.description}</p>
                 <Link
-                  to={`/watch/${anime._id}/${anime.seasons[0]?._id}/${anime.seasons[0]?.episodes[0]?._id}`}
+                  to={`/watch/anime/${anime._id}/${anime.seasons[0]?._id}/${anime.seasons[0]?.episodes[0]?._id}`}
                   className="inline-flex items-center px-8 py-3 bg-[#f47521] text-white font-medium rounded-lg hover:bg-[#ff8a3d] transition-colors"
                 >
                   <Play className="h-5 w-5 mr-2" />
@@ -188,7 +188,7 @@ function AnimeDetails() {
                   {season.episodes.map((episode) => (
                     <Link
                       key={episode._id}
-                      to={`/watch/${anime._id}/${season._id}/${episode._id}`}
+                      to={`/watch/anime/${anime._id}/${season._id}/${episode._id}`}
                       className="group flex-shrink-0 w-[160px] md:w-[200px] bg-[#141821] rounded-lg overflow-hidden hover:scale-105 transition-transform"
                     >
                       <div className="relative">

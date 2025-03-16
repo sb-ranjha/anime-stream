@@ -24,6 +24,7 @@ function WatchAnime() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [iframeKey, setIframeKey] = useState(0);
 
   const anime = animes.find(a => a._id === animeId);
   const season = anime?.seasons.find(s => s._id === seasonId);
@@ -33,22 +34,13 @@ function WatchAnime() {
     return <div>Episode not found</div>;
   }
 
-  // Set initial video source from episode data
+  // Reset loading state and iframe when episode or source changes
   useEffect(() => {
-    if (episode) {
-      // Set default video source based on available URLs
-      if (episode.doodstream) {
-        setVideoSource('doodstream');
-      } else if (episode.megacloud) {
-        setVideoSource('megacloud');
-      } else if (episode.mega) {
-        setVideoSource('mega');
-      } else if (episode.streamtape) {
-        setVideoSource('streamtape');
-      }
-      setIsLoading(true);
-    }
-  }, [episode]);
+    setIsLoading(true);
+    setIframeKey(prev => prev + 1);
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [episodeId, videoSource]);
 
   // Handle iframe load event
   const handleIframeLoad = () => {
@@ -119,8 +111,10 @@ function WatchAnime() {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 md:py-8 mt-16 md:mt-20">
       <div className="mb-4 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">{anime.title}</h1>
-        <p className="text-sm md:text-base text-gray-400">Season {season.number} - Episode {episode.number}: {episode.title}</p>
+        <h1 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">
+          <span className="text-[#f47521]">{anime.title}</span>
+        </h1>
+        <p className="text-sm md:text-base text-white/70">Season {season.number} - Episode {episode.number}: {episode.title}</p>
       </div>
 
       {/* Video Player Section */}
@@ -140,18 +134,19 @@ function WatchAnime() {
           <div className="absolute top-0 left-0 w-full h-full">
             {videoSource === 'doodstream' && episode.doodstream ? (
               <iframe 
+                key={`${iframeKey}-${episodeId}-${videoSource}`}
                 src={`https://cybervynx.com/e/${episode.doodstream}?controls=1`}
                 className="absolute top-0 left-0 w-full h-full"
                 allowFullScreen 
                 frameBorder="0"
                 scrolling="no"
-                // sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
-              ></iframe>
+              />
             ) : videoSource === 'megacloud' && episode.megacloud ? (
               <iframe 
+                key={`${iframeKey}-${episodeId}-${videoSource}`}
                 src={`https://megacloud.tv/embed-1/e-1/${episode.megacloud}?controls=1`}
                 className="absolute top-0 left-0 w-full h-full"
                 allowFullScreen 
@@ -161,9 +156,10 @@ function WatchAnime() {
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
-              ></iframe>
+              />
             ) : videoSource === 'mega' && episode.mega ? (
               <iframe 
+                key={`${iframeKey}-${episodeId}-${videoSource}`}
                 src={`https://mega.nz/embed/${episode.mega}?controls=1`}
                 className="absolute top-0 left-0 w-full h-full"
                 allowFullScreen 
@@ -173,20 +169,20 @@ function WatchAnime() {
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
-              ></iframe>
+              />
             ) : videoSource === 'streamtape' && episode.streamtape ? (
               <iframe 
+                key={`${iframeKey}-${episodeId}-${videoSource}`}
                 src={`https://watchadsontape.com/e/${episode.streamtape}?controls=1`}
                 className="absolute top-0 left-0 w-full h-full"
                 allowFullScreen
                 allow="autoplay; fullscreen"
                 scrolling="no"
                 frameBorder="0"
-                // sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
                 onLoad={handleIframeLoad}
                 title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
                 style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
-              ></iframe>
+              />
             ) : (
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900">
                 <p className="text-white text-lg">No video source available</p>
@@ -259,10 +255,10 @@ function WatchAnime() {
         )}
 
         {/* Episode Navigation */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mt-4">
           {prevEpisode ? (
             <Link
-              to={`/watch/${animeId}/${seasonId}/${prevEpisode._id}`}
+              to={`/watch/anime/${animeId}/${seasonId}/${prevEpisode._id}`}
               className="flex items-center text-[#f47521] hover:text-[#ff8a3d] text-sm md:text-base"
             >
               <ChevronLeft className="h-4 w-4 md:h-5 md:w-5 mr-1" />
@@ -273,7 +269,7 @@ function WatchAnime() {
           )}
           {nextEpisode ? (
             <Link
-              to={`/watch/${animeId}/${seasonId}/${nextEpisode._id}`}
+              to={`/watch/anime/${animeId}/${seasonId}/${nextEpisode._id}`}
               className="flex items-center text-[#f47521] hover:text-[#ff8a3d] text-sm md:text-base"
             >
               Next Episode
@@ -286,8 +282,8 @@ function WatchAnime() {
       </div>
 
       {/* All Episodes Section */}
-      <div className="mt-8">
-        <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">All Episodes</h2>
+      <div className="mb-8">
+        <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-white">All Episodes</h2>
         <div className="relative bg-[#141821] rounded-lg">
           <div 
             ref={scrollContainerRef}
@@ -301,7 +297,7 @@ function WatchAnime() {
               {season.episodes.map((ep) => (
                 <Link
                   key={ep._id}
-                  to={`/watch/${animeId}/${seasonId}/${ep._id}`}
+                  to={`/watch/anime/${animeId}/${seasonId}/${ep._id}`}
                   className={`relative group flex-shrink-0 w-[160px] md:w-[200px] bg-[#1e2330] rounded-lg overflow-hidden transition-transform hover:scale-105 ${ep._id === episodeId ? 'ring-2 ring-[#f47521]' : ''}`}
                 >
                   <div className="relative">
@@ -328,7 +324,7 @@ function WatchAnime() {
                   {/* Episode info below thumbnail */}
                   <div className="p-3">
                     <p className="text-sm font-medium text-white truncate">Episode {ep.number}</p>
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{ep.title}</p>
+                    <p className="text-xs text-white/70 truncate mt-0.5">{ep.title}</p>
                   </div>
                 </Link>
               ))}
@@ -341,10 +337,10 @@ function WatchAnime() {
       </div>
 
       {/* Recommendations Section */}
-      <div className="mt-16 md:mt-24 space-y-4 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg md:text-2xl font-bold">Recommended for You</h2>
-          <div className="text-xs md:text-sm text-gray-400">Based on your watch history</div>
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg md:text-2xl font-bold text-white">Recommended for You</h2>
+          <div className="text-xs md:text-sm text-white/70">Based on your watch history</div>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">

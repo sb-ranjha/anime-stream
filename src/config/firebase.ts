@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
+import { getFirestore, enableIndexedDbPersistence, initializeFirestore, CACHE_SIZE_UNLIMITED } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyC3jiPEpuhS-ICUfNV7xpZ6r0DdlpAn9FE",
@@ -16,19 +16,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore with settings
-const db = getFirestore(app);
+const db = initializeFirestore(app, {
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED
+});
 
-// Enable offline persistence (optional)
-enableIndexedDbPersistence(db)
-  .catch((err) => {
+// Enable offline persistence
+try {
+  enableIndexedDbPersistence(db).catch((err) => {
     if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+      // Multiple tabs open, persistence can only be enabled in one tab at a time.
+      console.warn('Multiple tabs open, persistence disabled');
     } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support persistence.');
+      // The current browser doesn't support persistence
+      console.warn('Browser does not support persistence');
     }
   });
+} catch (err) {
+  console.warn('Error enabling persistence:', err);
+}
 
-// Initialize Analytics
-const analytics = getAnalytics(app);
+// Initialize Auth
+const auth = getAuth(app);
 
-export { db, analytics }; 
+export { db, auth }; 

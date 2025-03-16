@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X, ChevronDown } from 'lucide-react';
+import { Search, X, ChevronDown, Settings } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
+import { useMovies } from '../context/MovieContext';
+import { useAuth } from '../context/AuthContext';
 
 interface SearchResult {
   _id: string;
   title: string;
-  image: string;
+  image?: string;
+  thumbnail?: string;
+  type: 'anime' | 'movie';
 }
 
 function Navbar() {
@@ -19,9 +23,11 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { animes } = useAnime();
+  const { movies } = useMovies();
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
+  const { currentUser, isAdmin } = useAuth();
 
   const categories = [
     { name: 'Action', color: 'from-red-800 to-red-600' },
@@ -63,21 +69,37 @@ function Navbar() {
   // Handle search input
   useEffect(() => {
     if (searchQuery.trim()) {
-      const results = animes
+      // Search in animes
+      const animeResults = animes
         .filter(anime => 
           anime.title.toLowerCase().includes(searchQuery.toLowerCase())
         )
-        .slice(0, 5)
+        .slice(0, 3)
         .map(anime => ({
           _id: anime._id,
           title: anime.title,
-          image: anime.image
+          image: anime.image,
+          type: 'anime' as const
         }));
-      setSearchResults(results);
+
+      // Search in movies
+      const movieResults = movies
+        .filter(movie => 
+          movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .slice(0, 2)
+        .map(movie => ({
+          _id: movie._id || '',
+          title: movie.title,
+          thumbnail: movie.thumbnail,
+          type: 'movie' as const
+        }));
+
+      setSearchResults([...animeResults, ...movieResults]);
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery, animes]);
+  }, [searchQuery, animes, movies]);
 
   // Handle search submission
   const handleSearch = (e: React.FormEvent) => {
@@ -141,11 +163,13 @@ function Navbar() {
 
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="h-8 lg:h-10 w-auto"
-              />
+              <div className="bg-white/90 backdrop-blur-sm rounded-lg p-1.5">
+                <img
+                  src="/logo.png"
+                  alt="Logo"
+                  className="h-8 lg:h-10 w-auto"
+                />
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -205,6 +229,19 @@ function Navbar() {
 
           {/* Categories and Search */}
           <div className="flex items-center gap-2">
+            {/* Admin Link - Only show if user is admin */}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={`p-2 lg:p-2.5 text-white hover:bg-white/5 rounded-lg transition-all flex items-center gap-2 ${
+                  location.pathname.startsWith('/admin') ? 'text-[#f47521] bg-white/5' : ''
+                }`}
+              >
+                <Settings className="h-4 w-4" />
+                <span className="hidden lg:inline">Admin</span>
+              </Link>
+            )}
+
             {/* Categories Dropdown */}
             <div ref={categoriesRef} className="relative">
               <button
@@ -252,38 +289,67 @@ function Navbar() {
               </button>
 
               {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-black/90 backdrop-blur-2xl rounded-xl shadow-xl border border-white/10 overflow-hidden mx-4 sm:mx-0">
-                  <form onSubmit={handleSearch} className="relative">
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search anime..."
-                      className="w-full px-4 py-3 lg:px-5 lg:py-4 text-white bg-transparent border-none focus:outline-none focus:ring-0 placeholder:text-gray-400 text-base"
-                    />
-                    {searchResults.length > 0 && (
-                      <div className="border-t border-white/10 py-2 max-h-80 overflow-auto">
-                        {searchResults.map(result => (
-                          <Link
-                            key={result._id}
-                            to={`/anime/${result._id}`}
-                            className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg"
+                <div
+                  ref={searchRef}
+                  className="absolute top-full left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/5"
+                >
+                  <div className="max-w-3xl mx-auto p-4">
+                    <form onSubmit={handleSearch}>
+                      <div className="relative">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search anime or movies..."
+                          className="w-full bg-white/5 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#f47521]"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
+                        {searchQuery && (
+                          <button
+                            type="button"
                             onClick={() => setSearchQuery('')}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                          >
+                            <X className="h-5 w-5 text-white/50 hover:text-white" />
+                          </button>
+                        )}
+                      </div>
+                    </form>
+
+                    {searchResults.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {searchResults.map((result) => (
+                          <Link
+                            key={`${result.type}-${result._id}`}
+                            to={result.type === 'anime' ? `/anime/${result._id}` : `/watch/movie/${result._id}`}
+                            className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors"
+                            onClick={() => {
+                              setIsSearchOpen(false);
+                              setSearchQuery('');
+                              setSearchResults([]);
+                            }}
                           >
                             <img
-                              src={result.image}
+                              src={result.type === 'anime' ? result.image : result.thumbnail}
                               alt={result.title}
-                              className="w-10 h-14 lg:w-12 lg:h-16 object-cover rounded-lg"
+                              className="h-12 w-20 object-cover rounded"
                             />
-                            <span className="text-sm lg:text-base text-white line-clamp-2 font-medium">
-                              {result.title}
-                            </span>
+                            <div>
+                              <h4 className="text-white font-medium line-clamp-1">{result.title}</h4>
+                              <p className="text-sm text-white/70 capitalize">{result.type}</p>
+                            </div>
                           </Link>
                         ))}
                       </div>
                     )}
-                  </form>
+
+                    {searchQuery && searchResults.length === 0 && (
+                      <div className="mt-4 text-center text-white/70">
+                        No results found
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

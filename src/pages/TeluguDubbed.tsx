@@ -8,13 +8,14 @@ function TeluguDubbed() {
   const teluguDubbedAnimes = animes.filter(anime => anime.isTeluguDub);
 
   return (
-    <div className="pt-14 bg-white dark:bg-[#141821]">
+    <div className="pt-14 bg-[#141821]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold">
-            <span className="text-[#f47521]">Telugu</span> Dubbed
+            <span className="text-[#f47521]">Telugu</span>
+            <span className="text-white"> Dubbed</span>
           </h1>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-white/70">
             {teluguDubbedAnimes.length} {teluguDubbedAnimes.length === 1 ? 'Anime' : 'Animes'}
           </div>
         </div>
@@ -26,24 +27,26 @@ function TeluguDubbed() {
               to={`/anime/${anime._id}`}
               className="group relative"
             >
-              <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-xl">
+              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#1a1f2c] group">
                 <img
                   src={anime.image}
                   alt={anime.title}
-                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  loading="lazy"
                 />
-                <div className="absolute top-2 right-2">
-                  <span className="px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">Telugu</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                <div className="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">
+                  Telugu
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <h3 className="text-base font-semibold text-white mb-2">{anime.title}</h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="text-gray-300">{anime.rating.toFixed(1)}</span>
+                <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                  <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                  <div className="flex items-center gap-2 text-xs md:text-sm text-white">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
+                      <span className="text-white">{anime.rating.toFixed(1)}</span>
                     </div>
-                    <span className="text-gray-300 text-sm">{anime.category}</span>
+                    <span className="text-[#f47521]">•</span>
+                    <span className="text-white">{anime.category}</span>
                   </div>
                 </div>
               </div>
@@ -53,8 +56,8 @@ function TeluguDubbed() {
 
         {teluguDubbedAnimes.length === 0 && (
           <div className="text-center py-16">
-            <h3 className="text-xl text-gray-400 mb-4">No Telugu dubbed anime available yet</h3>
-            <p className="text-gray-500">Check back later for updates</p>
+            <h3 className="text-xl text-white/70 mb-4">No Telugu dubbed anime available yet</h3>
+            <p className="text-white/50">Check back later for updates</p>
           </div>
         )}
       </div>
