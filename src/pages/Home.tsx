@@ -251,14 +251,14 @@ function Home() {
                 </h1>
 
                 {/* Sub | Dub • Category */}
-                <div className="flex items-center gap-3 text-white/90 text-xl">
+                <div className="flex items-center gap-3 text-white text-xl">
                   <span>Sub | Dub</span>
                   <span className="text-[#f47521]">•</span>
                   <span>{topTrending[currentSlide].category}</span>
                 </div>
 
                 {/* Description */}
-                <p className="text-lg text-white/80 max-w-3xl leading-relaxed">
+                <p className="text-lg text-white leading-relaxed">
                   {topTrending[currentSlide].description.length > 300 
                     ? `${topTrending[currentSlide].description.substring(0, 300)}...` 
                     : topTrending[currentSlide].description}
@@ -316,8 +316,9 @@ function Home() {
         onMouseLeave={handleMouseLeave}
       >
         <div className="flex justify-between items-center mb-6 md:mb-12">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">Top 10</span> Trending Now
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">Top 10</span> 
+            <span className="text-white">Trending Now</span>
           </h2>
           {/* Navigation buttons for desktop */}
           <div className="hidden md:flex items-center gap-3">
@@ -326,14 +327,14 @@ function Home() {
               className="w-10 h-10 rounded-full bg-[#1a1b1f] flex items-center justify-center hover:bg-[#f47521] transition-colors"
               aria-label="Previous"
             >
-              <ChevronLeft className="h-6 w-6 text-white/80" />
+              <ChevronLeft className="h-6 w-6 text-white" />
             </button>
             <button 
               onClick={goToNextTopTen}
               className="w-10 h-10 rounded-full bg-[#1a1b1f] flex items-center justify-center hover:bg-[#f47521] transition-colors"
               aria-label="Next"
             >
-              <ChevronRight className="h-6 w-6 text-white/80" />
+              <ChevronRight className="h-6 w-6 text-white" />
             </button>
           </div>
         </div>
@@ -359,13 +360,13 @@ function Home() {
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
                     <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
-                    <div className="flex items-center gap-2 text-xs md:text-sm text-white/80">
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white">
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
                   </div>
                 </div>
@@ -376,10 +377,11 @@ function Home() {
       </div>
 
       {/* Season Trending Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">Season</span> Trending
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">Season</span>
+            <span className="text-white">Trending</span>
           </h2>
           <Link 
             to="/category/season-trending" 
@@ -392,29 +394,31 @@ function Home() {
         {/* Scrollable view for both mobile and desktop */}
         <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
           <div className="flex space-x-4 md:space-x-6 w-max pb-4">
-            {animes.filter(anime => anime.seasonTrending).slice(0, 20).map((anime) => (
+            {animes.filter(anime => anime.seasonTrending).map((anime) => (
               <Link 
                 key={anime._id} 
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="anime-card">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
                   <img
                     src={anime.image}
                     alt={anime.title}
-                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
-                  <div className="overlay" />
-                  <div className="badge bg-purple-600">Season</div>
-                  <div className="content">
-                    <h3 className="title">{anime.title}</h3>
-                    <div className="metadata">
-                      <div className="rating">
-                        <Star className="rating-star" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-purple-600 text-white text-xs font-bold rounded">
+                    Season
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                    <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
                   </div>
                 </div>
@@ -427,8 +431,9 @@ function Home() {
       {/* Latest Releases Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">Latest</span> Releases
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">Latest</span>
+            <span className="text-white">Releases</span>
           </h2>
           <Link 
             to="/latest-releases" 
@@ -447,22 +452,23 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="anime-card">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
                   <img
                     src={anime.image}
                     alt={anime.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="overlay" />
-                  <div className="content">
-                    <h3 className="title">{anime.title}</h3>
-                    <div className="metadata">
-                      <div className="rating">
-                        <Star className="rating-star" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                    <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
                   </div>
                 </div>
@@ -475,8 +481,9 @@ function Home() {
       {/* Hindi Dubbed Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">Hindi</span> Dubbed
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">Hindi</span>
+            <span className="text-white">Dubbed</span>
           </h2>
           <Link 
             to="/category/hindi-dub" 
@@ -495,23 +502,26 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="anime-card">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
                   <img
                     src={anime.image}
                     alt={anime.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="overlay" />
-                  <div className="badge bg-blue-600">Hindi</div>
-                  <div className="content">
-                    <h3 className="title">{anime.title}</h3>
-                    <div className="metadata">
-                      <div className="rating">
-                        <Star className="rating-star" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs font-bold rounded">
+                    Hindi
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                    <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
                   </div>
                 </div>
@@ -524,8 +534,9 @@ function Home() {
       {/* Telugu Dubbed Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">Telugu</span> Dubbed
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">Telugu</span>
+            <span className="text-white">Dubbed</span>
           </h2>
           <Link 
             to="/category/telugu-dub" 
@@ -544,23 +555,26 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="anime-card">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
                   <img
                     src={anime.image}
                     alt={anime.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="overlay" />
-                  <div className="badge bg-green-600">Telugu</div>
-                  <div className="content">
-                    <h3 className="title">{anime.title}</h3>
-                    <div className="metadata">
-                      <div className="rating">
-                        <Star className="rating-star" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">
+                    Telugu
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                    <h3 className="text-sm md:text-lg font-semibold text-white line-clamp-2 mb-1 md:mb-2">{anime.title}</h3>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-white">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 md:h-4 md:w-4 text-[#f47521]" />
                         <span>{anime.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[#f47521]">•</span>
-                      <span>{anime.category}</span>
+                      <span className="text-white">{anime.category}</span>
                     </div>
                   </div>
                 </div>
@@ -576,8 +590,9 @@ function Home() {
       {/* New Episodes Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold flex items-center">
-            <span className="text-[#f47521] mr-2">New</span> Episodes
+          <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
+            <span className="text-[#f47521] mr-2">New</span>
+            <span className="text-white">Episodes</span>
           </h2>
           <Link 
             to="/new-episodes" 
@@ -620,7 +635,7 @@ function Home() {
                 return (
                   <Link 
                     key={`${anime._id}-${episode._id}`}
-                    to={`/watch/${anime._id}/${season?._id}/${episode._id}`} 
+                    to={`/watch/anime/${anime._id}/${season?._id}/${episode._id}`} 
                     className="block w-[160px] md:w-[240px] flex-shrink-0"
                     onClick={() => {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -671,13 +686,14 @@ function Home() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
               <Play className="h-5 w-5 text-[#f47521]" />
-              Movies
+              <span className="text-white">Movies</span>
             </h2>
             <Link 
               to="/movies" 
-              className="text-sm text-white/70 hover:text-[#f47521] transition-colors"
+              className="text-[#f47521] hover:text-[#ff8a3d] font-medium flex items-center text-sm md:text-lg"
             >
               View All
+              <ChevronRight className="w-4 h-4 md:w-6 md:h-6 ml-2" />
             </Link>
           </div>
 
@@ -787,7 +803,7 @@ function Home() {
         .anime-card .overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+          background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
         }
         .anime-card .content {
           position: absolute;
@@ -795,22 +811,14 @@ function Home() {
           left: 0;
           right: 0;
           padding: 1rem;
-          @media (min-width: 768px) {
-            padding: 1.5rem;
-          }
           color: white;
         }
         .anime-card .title {
-          font-size: 0.75rem;
-          @media (min-width: 768px) {
-            font-size: 1rem;
-          }
+          font-size: 0.875rem;
           font-weight: 600;
-          margin-bottom: 0.25rem;
-          @media (min-width: 768px) {
-            margin-bottom: 0.5rem;
-          }
+          margin-bottom: 0.5rem;
           line-height: 1.4;
+          color: white;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -819,49 +827,31 @@ function Home() {
         .anime-card .metadata {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
-          @media (min-width: 768px) {
-            gap: 0.5rem;
-          }
-          font-size: 0.625rem;
-          @media (min-width: 768px) {
-            font-size: 0.875rem;
-          }
-          color: rgba(255, 255, 255, 0.8);
+          gap: 0.5rem;
+          font-size: 0.75rem;
+          color: white;
         }
         .anime-card .rating {
           display: flex;
           align-items: center;
           gap: 0.25rem;
-          @media (min-width: 768px) {
-            gap: 0.5rem;
-          }
+          color: white;
         }
         .anime-card .rating-star {
           color: #f47521;
-          width: 0.75rem;
-          height: 0.75rem;
-          @media (min-width: 768px) {
-            width: 1rem;
-            height: 1rem;
-          }
+          width: 0.875rem;
+          height: 0.875rem;
         }
         .anime-card .badge {
           position: absolute;
-          top: 0.375rem;
-          right: 0.375rem;
-          padding: 0.125rem 0.5rem;
+          top: 0.5rem;
+          right: 0.5rem;
+          padding: 0.25rem 0.75rem;
           border-radius: 9999px;
-          font-size: 0.625rem;
-          @media (min-width: 768px) {
-            top: 0.75rem;
-            right: 0.75rem;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-          }
+          font-size: 0.75rem;
           font-weight: 600;
           color: white;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.85);
           backdrop-filter: blur(4px);
         }
         `}
