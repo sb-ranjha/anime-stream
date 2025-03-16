@@ -976,7 +976,10 @@ const AdminPanel = () => {
                                       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                     >
                                       <div className="flex space-x-4 pb-4" style={{ minWidth: 'min-content' }}>
-                                {season.episodes.map((episode) => (
+                                {season.episodes
+                                  .slice()
+                                  .sort((a, b) => a.number - b.number)
+                                  .map((episode) => (
                                   <div 
                                     key={episode._id} 
                                     className="flex-shrink-0 w-[280px] bg-gray-700 rounded-lg overflow-hidden group hover:bg-gray-600 transition-colors"
