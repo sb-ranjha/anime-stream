@@ -45,9 +45,6 @@ function NewEpisodes() {
                 key={`${anime._id}-${episode._id}`}
                 to={`/watch/${anime._id}/${season._id}/${episode._id}`}
                 className="block group"
-                onClick={() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
               >
                 <div className="relative aspect-video md:aspect-[2/3] rounded-lg overflow-hidden bg-gray-800">
                   <img
