@@ -19,6 +19,7 @@ import NotFound from './pages/NotFound';
 import { AnimeProvider } from './context/AnimeContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <AuthProvider>
         <AnimeProvider>
           <div className="flex flex-col min-h-screen bg-black text-gray-100">
+            <ScrollToTop />
             <Navbar />
             <main className="flex-1">
               <Routes>
