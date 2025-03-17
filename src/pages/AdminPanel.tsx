@@ -486,7 +486,7 @@ const AdminPanel = () => {
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">Admin Panel</h1>
       
-          {/* Add Anime Form */}
+      {/* Add Anime Form */}
           <div className="bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg mb-4 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-white">
               <Plus className="h-5 w-5 text-[#f47521] mr-2" /> Add New Anime
@@ -496,46 +496,46 @@ const AdminPanel = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="col-span-full">
                   <label className="block text-white text-sm font-medium mb-2">Title</label>
-                  <input
-                    {...animeForm.register('title')}
+            <input
+              {...animeForm.register('title')}
                     type="text"
-                    placeholder="Enter anime title"
+                  placeholder="Enter anime title"
                     className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
-                  />
-                </div>
-                
+            />
+          </div>
+
                 <div className="col-span-full">
                   <label className="block text-white text-sm font-medium mb-2">Description</label>
-                  <textarea
-                    {...animeForm.register('description')}
-                    placeholder="Enter anime description"
+            <textarea
+              {...animeForm.register('description')}
+                  placeholder="Enter anime description"
                     rows={4}
                     className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
-                  />
-                </div>
+            />
+          </div>
 
-                <div>
+          <div>
                   <label className="block text-white text-sm font-medium mb-2">Image URL</label>
-                  <input
-                    {...animeForm.register('image')}
+            <input
+              {...animeForm.register('image')}
                     type="text"
-                    placeholder="Enter image URL"
+                  placeholder="Enter image URL"
                     className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
-                  />
-                </div>
+            />
+          </div>
 
-                <div>
+          <div>
                   <label className="block text-white text-sm font-medium mb-2">Rating (0-10)</label>
-                  <input
-                    {...animeForm.register('rating', { valueAsNumber: true })}
+            <input
+              {...animeForm.register('rating', { valueAsNumber: true })}
                     type="number"
-                    min="0"
-                    max="10"
-                    step="0.1"
+              min="0"
+              max="10"
+              step="0.1"
                     placeholder="0"
                     className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
-                  />
-                </div>
+            />
+          </div>
 
                 <div className="col-span-full">
                   <label className="block text-white text-sm font-medium mb-2">Category</label>
@@ -554,49 +554,49 @@ const AdminPanel = () => {
                   <label className="block text-white text-sm font-medium">Tags</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <label className="inline-flex items-center">
-                      <input 
-                        {...animeForm.register('trending')}
-                        type="checkbox" 
+                  <input
+                    {...animeForm.register('trending')}
+                    type="checkbox"
                         className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
-                      />
+                  />
                       <span className="ml-2 text-white">Trending</span>
-                    </label>
+                </label>
                     <label className="inline-flex items-center">
-                      <input 
+                  <input
                         {...animeForm.register('seasonTrending')}
-                        type="checkbox" 
+                    type="checkbox"
                         className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
-                      />
+                  />
                       <span className="ml-2 text-white">Season Trending</span>
-                    </label>
+                </label>
                     <label className="inline-flex items-center">
-                      <input 
+                  <input
                         {...animeForm.register('isHindiDub')}
-                        type="checkbox" 
+                    type="checkbox"
                         className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
-                      />
+                  />
                       <span className="ml-2 text-white">Hindi Dub</span>
-                    </label>
+                </label>
                     <label className="inline-flex items-center">
-                      <input 
+                  <input
                         {...animeForm.register('isTeluguDub')}
-                        type="checkbox" 
+                    type="checkbox"
                         className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
-                      />
+                  />
                       <span className="ml-2 text-white">Telugu Dub</span>
-                    </label>
+                </label>
                   </div>
                 </div>
               </div>
 
-              <button
-                type="submit"
+          <button
+            type="submit"
                 className="w-full bg-[#f47521] text-white py-2.5 rounded-lg hover:bg-[#f47521]/90 transition-colors"
-              >
-                Add Anime
-              </button>
-            </form>
-          </div>
+          >
+            Add Anime
+          </button>
+        </form>
+      </div>
 
           {/* Manage Anime Section */}
           <div className="bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg">
@@ -763,132 +763,132 @@ const AdminPanel = () => {
 
                       {selectedSeason === season._id && (
                                 <div className="mt-3">
-                                  {/* Episode Form - Compact mobile layout */}
-                                  <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-lg p-2 sm:p-4 lg:p-6 mb-4 episode-form">
-                                    <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-white flex items-center gap-2">
-                                      <Plus className="h-4 w-4 text-[#f47521]" />
+                                  {/* Episode Form - Better desktop layout */}
+                                  <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-lg p-3 sm:p-6 mb-4 episode-form">
+                                    <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-white flex items-center gap-2">
+                                      <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-[#f47521]" />
                                       {editingEpisode ? 'Edit Episode' : 'Add Episode'}
                                     </h3>
                                     
-                                    <div className="space-y-3 sm:space-y-4">
-                                      {/* Basic Info - Stack on mobile, 2 columns on desktop */}
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                          <label className="block text-sm font-medium mb-1 text-gray-200">Title</label>
-                                          <input
-                                            {...episodeForm.register('title')}
-                                            className="w-full bg-[#272b38] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                    <div className="space-y-4 sm:space-y-6">
+                                      {/* Basic Info - 2 columns on desktop */}
+                                      <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                          <label className="block text-sm font-medium mb-1.5 text-gray-200">Title</label>
+                                        <input
+                                          {...episodeForm.register('title')}
+                                            className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                             placeholder="Episode title"
-                                          />
+                                        />
                                           {episodeForm.formState.errors.title && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.title.message}</p>
                                           )}
-                                        </div>
-                                        <div>
-                                          <label className="block text-sm font-medium mb-1 text-gray-200">Number</label>
-                                          <input
-                                            type="number"
-                                            {...episodeForm.register('number', { valueAsNumber: true })}
-                                            className="w-full bg-[#272b38] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                      </div>
+                                      <div>
+                                          <label className="block text-sm font-medium mb-1.5 text-gray-200">Number</label>
+                                        <input
+                                          type="number"
+                                          {...episodeForm.register('number', { valueAsNumber: true })}
+                                            className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                             placeholder="#"
-                                          />
+                                        />
                                           {episodeForm.formState.errors.number && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.number.message}</p>
                                           )}
                                         </div>
                                       </div>
 
-                                      {/* Video Sources - Compact grid */}
-                                      <div className="bg-[#272b38] rounded-lg p-2 sm:p-4">
-                                        <h4 className="text-sm font-medium mb-2 text-white flex items-center gap-2">
+                                      {/* Video Sources - Grid layout on desktop */}
+                                      <div className="bg-[#272b38] rounded-lg p-4">
+                                        <h4 className="text-sm font-medium mb-3 text-white flex items-center gap-2">
                                           <Play className="h-4 w-4" />
                                           Video Sources
                                         </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-                                          <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">StreamHG</label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">StreamHG</label>
                                             <input
                                               {...episodeForm.register('streamHG')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
                                             />
                                           </div>
                                           <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">DoodStream</label>
-                                            <input
-                                              {...episodeForm.register('doodstream')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">DoodStream</label>
+                                        <input
+                                          {...episodeForm.register('doodstream')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">MegaCloud</label>
-                                            <input
-                                              {...episodeForm.register('megacloud')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                        />
+                                      </div>
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">MegaCloud</label>
+                                        <input
+                                          {...episodeForm.register('megacloud')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Mega.nz</label>
-                                            <input
-                                              {...episodeForm.register('mega')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                        />
+                                      </div>
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Mega.nz</label>
+                                        <input
+                                          {...episodeForm.register('mega')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div className="sm:col-span-2">
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Streamtape</label>
-                                            <input
-                                              {...episodeForm.register('streamtape')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                        />
+                                      </div>
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Streamtape</label>
+                                        <input
+                                          {...episodeForm.register('streamtape')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
+                                        />
                                           </div>
                                         </div>
                                       </div>
 
-                                      {/* Additional Details - Compact layout */}
-                                      <div className="bg-[#272b38] rounded-lg p-2 sm:p-4">
-                                        <h4 className="text-sm font-medium mb-2 text-white flex items-center gap-2">
+                                      {/* Additional Details - Grid layout on desktop */}
+                                      <div className="bg-[#272b38] rounded-lg p-4">
+                                        <h4 className="text-sm font-medium mb-3 text-white flex items-center gap-2">
                                           <Info className="h-4 w-4" />
                                           Additional Details
                                         </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="sm:col-span-2">
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Thumbnail URL</label>
-                                            <input
-                                              {...episodeForm.register('thumbnail')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
-                                              placeholder="Enter thumbnail URL"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Duration</label>
-                                            <input
-                                              {...episodeForm.register('duration')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Thumbnail URL</label>
+                                        <input
+                                          {...episodeForm.register('thumbnail')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                          placeholder="Enter thumbnail URL"
+                                        />
+                                      </div>
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Duration</label>
+                                        <input
+                                          {...episodeForm.register('duration')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="24:30"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Release Date</label>
-                                            <input
-                                              type="date"
-                                              {...episodeForm.register('releaseDate')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
-                                            />
-                                          </div>
-                                        </div>
+                                        />
+                                      </div>
+                                      <div>
+                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Release Date</label>
+                                        <input
+                                          type="date"
+                                          {...episodeForm.register('releaseDate')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                        />
+                                      </div>
+                                    </div>
                                       </div>
                                     </div>
 
-                                    <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-                                      <p className="text-xs sm:text-sm text-gray-400 flex items-center gap-2">
+                                    <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                      <p className="text-sm text-gray-400 flex items-center gap-2">
                                         <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#f47521]"></span>
                                         At least one video source required
                                       </p>
-                                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                                      <div className="flex items-center gap-3 w-full sm:w-auto">
                                         {editingEpisode && (
                                           <button
                                             type="button"
@@ -907,7 +907,7 @@ const AdminPanel = () => {
                                                 releaseDate: new Date().toISOString().split('T')[0]
                                               });
                                             }}
-                                            className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-[#272b38] text-gray-300 text-sm font-medium hover:bg-[#2f3446] transition-colors flex items-center justify-center gap-2"
+                                            className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-[#272b38] text-gray-300 text-sm font-medium hover:bg-[#2f3446] transition-colors flex items-center justify-center gap-2"
                                           >
                                             <X className="h-4 w-4" />
                                             Cancel
@@ -915,17 +915,17 @@ const AdminPanel = () => {
                                         )}
                                         <button
                                           type="submit"
-                                          className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-[#f47521] text-white text-sm font-medium hover:bg-[#f47521]/90 transition-colors flex items-center justify-center gap-2"
+                                          className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-[#f47521] text-white text-sm font-medium hover:bg-[#f47521]/90 transition-colors flex items-center justify-center gap-2"
                                         >
                                           {editingEpisode ? (
                                             <>
                                               <Edit2 className="h-4 w-4" />
-                                              Update
+                                              Update Episode
                                             </>
                                           ) : (
                                             <>
                                               <Plus className="h-4 w-4" />
-                                              Add
+                                              Add Episode
                                             </>
                                           )}
                                         </button>
@@ -1051,6 +1051,9 @@ const AdminPanel = () => {
                   </div>
                 </div>
               )}
+            </div>
+          ))}
+              </div>
             </div>
           </div>
         </div>
