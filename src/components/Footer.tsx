@@ -2,6 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function Footer() {
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-[#141821] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -9,7 +13,7 @@ function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Navigation</h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li><Link to="/" className="hover:text-[#f47521] transition-colors">Home</Link></li>
+              <li><Link to="/" onClick={handleHomeClick} className="hover:text-[#f47521] transition-colors">Home</Link></li>
               <li><Link to="/category/season-trending" className="hover:text-[#f47521] transition-colors">Season Trending</Link></li>
               <li><Link to="/category/hindi-dub" className="hover:text-[#f47521] transition-colors">Hindi Dub</Link></li>
               <li><Link to="/category/telugu-dub" className="hover:text-[#f47521] transition-colors">Telugu Dub</Link></li>

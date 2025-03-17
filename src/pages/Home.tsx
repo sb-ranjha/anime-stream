@@ -1,9 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Calendar, Star, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
+import { useMovies } from '../context/MovieContext';
 import AnimeCard from '../components/AnimeCard';
 import { Link } from 'react-router-dom';
 import BrowseCategories from '../components/BrowseCategories';
+
+interface Movie {
+  _id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  releaseDate: string;
+  duration: string;
+  genre: string[];
+  streamHG?: string;
+  doodstream?: string;
+  megacloud?: string;
+  streamtape?: string;
+}
 
 interface Episode {
   _id: string;
@@ -46,6 +61,7 @@ const ITEMS_PER_PAGE = 10; // Number of items to show per load
 
 function Home() {
   const { trending, animes } = useAnime();
+  const { movies: moviesList } = useMovies();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -348,7 +364,7 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
                   <img
                     src={anime.image}
                     alt={anime.title}
@@ -377,7 +393,7 @@ function Home() {
       </div>
 
       {/* Season Trending Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 bg-black">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl md:text-4xl font-bold text-white flex items-center">
             <span className="text-[#f47521] mr-2">Season</span>
@@ -400,7 +416,7 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
                   <img
                     src={anime.image}
                     alt={anime.title}
@@ -452,7 +468,7 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
                   <img
                     src={anime.image}
                     alt={anime.title}
@@ -502,7 +518,7 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
                   <img
                     src={anime.image}
                     alt={anime.title}
@@ -555,7 +571,7 @@ function Home() {
                 to={`/anime/${anime._id}`} 
                 className="block w-[160px] md:w-[240px] flex-shrink-0"
               >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#111111] group">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
                   <img
                     src={anime.image}
                     alt={anime.title}
@@ -681,8 +697,8 @@ function Home() {
       </div>
 
       {/* Movies Section */}
-      <section className="py-8 md:py-12 bg-[#141821]">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-8 md:py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
               <Play className="h-5 w-5 text-[#f47521]" />
@@ -697,16 +713,40 @@ function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
-            {movies.slice(0, 12).map((anime) => (
-              <AnimeCard key={anime._id} anime={anime} />
-            ))}
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+            <div className="flex space-x-4 md:space-x-6 w-max pb-4">
+              {moviesList.slice(0, 12).map((movie) => (
+                <Link
+                  key={movie._id}
+                  to={`/watch/movie/${movie._id}`}
+                  className="block w-[160px] md:w-[240px] flex-shrink-0"
+                >
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-black group">
+                    <img
+                      src={movie.thumbnail}
+                      alt={movie.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                        <h3 className="text-white font-medium text-sm md:text-base mb-1">{movie.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-white/70">
+                          <span>{movie.duration}</span>
+                          <span className="text-[#f47521]">•</span>
+                          <span>{movie.genre[0]}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* All Anime Section with Load More */}
-      <section className="py-12 bg-[#1a1b1f]">
+      <section className="py-12 bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-white mb-8">All Anime</h2>
           
@@ -715,7 +755,7 @@ function Home() {
               <Link
                 key={anime._id}
                 to={`/anime/${anime._id}`}
-                className="group relative overflow-hidden rounded-xl aspect-[2/3] bg-[#141821] hover:scale-105 transition-transform duration-300"
+                className="group relative overflow-hidden rounded-xl aspect-[2/3] bg-black hover:scale-105 transition-transform duration-300"
               >
                 <img
                   src={anime.image}
@@ -781,7 +821,7 @@ function Home() {
           border-radius: 0.75rem;
           overflow: hidden;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-          background: #111111;
+          background: black;
           transition: all 0.3s ease;
           width: 100%;
           height: 100%;
