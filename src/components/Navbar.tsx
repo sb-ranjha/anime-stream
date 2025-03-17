@@ -44,6 +44,11 @@ function Navbar() {
     return location.pathname === path;
   };
 
+  // Handle scroll to top
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Handle click outside search
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -194,6 +199,7 @@ function Navbar() {
             <div className="hidden lg:flex items-center ml-10 space-x-2">
               <Link
                 to="/"
+                onClick={handleHomeClick}
                 className={`px-4 py-2.5 rounded-lg text-base font-semibold transition-all ${
                   isActive('/') 
                     ? 'text-[#f47521] bg-white/5' 
@@ -399,12 +405,15 @@ function Navbar() {
             <div className="flex flex-col py-1">
               <Link
                 to="/"
+                onClick={() => {
+                  handleHomeClick();
+                  setIsMobileMenuOpen(false);
+                }}
                 className={`px-4 py-2.5 text-base font-medium transition-all ${
                   isActive('/') 
                     ? 'text-[#f47521] bg-white/5' 
                     : 'text-white hover:bg-white/5'
                 }`}
-                onClick={() => setIsMobileMenuOpen(false)}
               >
                 Home
               </Link>
