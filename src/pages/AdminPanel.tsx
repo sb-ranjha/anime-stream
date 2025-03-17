@@ -15,8 +15,7 @@ const animeSchema = z.object({
   rating: z.number().min(0).max(10),
   isHindiDub: z.boolean().optional(),
   isTeluguDub: z.boolean().optional(),
-  isNewEpisode: z.boolean().optional(),
-  isMovie: z.boolean().optional()
+  isNewEpisode: z.boolean().optional()
 });
 
 const episodeSchema = z.object({
@@ -70,7 +69,6 @@ interface Anime {
   isHindiDub?: boolean;
   isTeluguDub?: boolean;
   isNewEpisode?: boolean;
-  isMovie?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -93,7 +91,7 @@ const AdminPanel = () => {
     direction: 'asc' | 'desc';
   }>({ key: 'title', direction: 'asc' });
   const [filterCategory, setFilterCategory] = useState<string>('');
-  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime' | 'movies'>('all');
+  const [activeSection, setActiveSection] = useState<'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime'>('all');
   const [latestEpisodes, setLatestEpisodes] = useState<Array<{
     animeId: string;
     seasonId: string;
@@ -118,8 +116,7 @@ const AdminPanel = () => {
       rating: 0,
       isHindiDub: false,
       isTeluguDub: false,
-      isNewEpisode: false,
-      isMovie: false
+      isNewEpisode: false
     }
   });
 
@@ -210,9 +207,6 @@ const AdminPanel = () => {
       case 'newAnime':
         filtered = filtered.filter(anime => anime.isNewEpisode === true);
         break;
-      case 'movies':
-        filtered = filtered.filter(anime => anime.isMovie === true);
-        break;
       // 'all' case doesn't need filtering
     }
 
@@ -281,17 +275,17 @@ const AdminPanel = () => {
         isNew: true
       };
 
-      updateAnime(animeId, {
-        isNewEpisode: true,
-        seasons: anime.seasons.map(season =>
-          season._id === seasonId ? {
-            ...season,
-            episodes: season.episodes.map(ep =>
-              ep._id === _id ? { ...ep, ...formattedData } : ep
-            )
-          } : season
-        )
-      });
+        updateAnime(animeId, {
+          isNewEpisode: true,
+          seasons: anime.seasons.map(season =>
+            season._id === seasonId ? {
+              ...season,
+              episodes: season.episodes.map(ep =>
+                ep._id === _id ? { ...ep, ...formattedData } : ep
+              )
+            } : season
+          )
+        });
       setEditingEpisode(null);
       episodeForm.reset();
     } else {
@@ -366,7 +360,7 @@ const AdminPanel = () => {
   };
 
   // Update the handleNavigationClick function
-  const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime' | 'movies') => {
+  const handleNavigationClick = (section: 'all' | 'popular' | 'hindiDub' | 'teluguDub' | 'newAnime') => {
     setActiveSection(section);
     setFilterCategory(''); // Reset category filter when changing sections
   };
@@ -457,17 +451,6 @@ const AdminPanel = () => {
                 <Play className="h-4 w-4" /> 
                 <span className="truncate">New Anime ({animes.filter(anime => anime.isNewEpisode).length})</span>
               </button>
-              <button
-                onClick={() => handleNavigationClick('movies')}
-                className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-sm ${
-                  activeSection === 'movies' 
-                    ? 'bg-[#f47521] text-white' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                <Play className="h-4 w-4" /> 
-                <span className="truncate">Movies ({animes.filter(anime => anime.isMovie).length})</span>
-              </button>
             </nav>
 
             {/* Quick Search and Filter - Full width on mobile */}
@@ -505,131 +488,94 @@ const AdminPanel = () => {
             <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
               <Plus className="h-5 w-5 text-[#f47521] mr-2" /> Add New Anime
             </h2>
-            <form onSubmit={animeForm.handleSubmit(onSubmitAnime)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Title</label>
-                <input
-                  {...animeForm.register('title')}
-                  className="w-full bg-gray-700 rounded-md px-4 py-2"
+            <form onSubmit={animeForm.handleSubmit(onSubmitAnime)} className="space-y-6">
+          <div>
+                <label className="block text-white text-sm font-medium mb-2">Title</label>
+            <input
+                  type="text"
                   placeholder="Enter anime title"
-                />
-                {animeForm.formState.errors.title && (
-                  <p className="text-red-500 text-sm mt-1">{animeForm.formState.errors.title.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Category</label>
-                <select
-                  {...animeForm.register('category')}
-                  className="w-full bg-gray-700 rounded-md px-4 py-2"
-                >
-                  <option value="">Select category</option>
-                  <option value="Action">Action</option>
-                  <option value="Romance">Romance</option>
-                  <option value="Comedy">Comedy</option>
-                  <option value="Drama">Drama</option>
-                  <option value="Fantasy">Fantasy</option>
-                  <option value="Sci-Fi">Sci-Fi</option>
-                </select>
-                {animeForm.formState.errors.category && (
-                  <p className="text-red-500 text-sm mt-1">{animeForm.formState.errors.category.message}</p>
-                )}
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium mb-1">Description</label>
-                <textarea
-                  {...animeForm.register('description')}
-                  className="w-full bg-gray-700 rounded-md px-4 py-2"
-                  rows={4}
-                  placeholder="Enter anime description"
-                />
-                {animeForm.formState.errors.description && (
-                  <p className="text-red-500 text-sm mt-1">{animeForm.formState.errors.description.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Image URL</label>
-                <input
-                  {...animeForm.register('image')}
-                  className="w-full bg-gray-700 rounded-md px-4 py-2"
-                  placeholder="Enter image URL"
-                />
-                {animeForm.formState.errors.image && (
-                  <p className="text-red-500 text-sm mt-1">{animeForm.formState.errors.image.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Rating (0-10)</label>
-                <input
-                  type="number"
-                  {...animeForm.register('rating', { valueAsNumber: true })}
-                  className="w-full bg-gray-700 rounded-md px-4 py-2"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                />
-                {animeForm.formState.errors.rating && (
-                  <p className="text-red-500 text-sm mt-1">{animeForm.formState.errors.rating.message}</p>
-                )}
-              </div>
-
-              <div className="sm:col-span-2 grid grid-cols-2 gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...animeForm.register('trending')}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  <span className="text-sm">Trending</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...animeForm.register('seasonTrending')}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  <span className="text-sm">Season Trending</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...animeForm.register('isHindiDub')}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  <span className="text-sm">Hindi Dub</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...animeForm.register('isTeluguDub')}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  <span className="text-sm">Telugu Dub</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...animeForm.register('isMovie')}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  <span className="text-sm">Movie</span>
-                </label>
-              </div>
-
-              <div className="sm:col-span-2">
-                <button
-                  type="submit"
-                  className="w-full bg-[#f47521] text-white px-4 py-2 rounded-md hover:bg-[#f47521]/80 transition-colors"
-                >
-                  Add Anime
-                </button>
-              </div>
-            </form>
+                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
+            />
           </div>
+
+          <div>
+                <label className="block text-white text-sm font-medium mb-2">Description</label>
+            <textarea
+                  placeholder="Enter anime description"
+                  rows={4}
+                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
+            />
+          </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+                  <label className="block text-white text-sm font-medium mb-2">Image URL</label>
+            <input
+                    type="text"
+                  placeholder="Enter image URL"
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
+            />
+          </div>
+          <div>
+                  <label className="block text-white text-sm font-medium mb-2">Rating (0-10)</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
+            />
+                </div>
+          </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">Category</label>
+                <select 
+                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
+                >
+                  <option value="" className="bg-[#1a1f2c]">Select category</option>
+                  <option value="action" className="bg-[#1a1f2c]">Action</option>
+                  <option value="romance" className="bg-[#1a1f2c]">Romance</option>
+                  <option value="comedy" className="bg-[#1a1f2c]">Comedy</option>
+                  <option value="drama" className="bg-[#1a1f2c]">Drama</option>
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-white text-sm font-medium">Tags</label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-4">
+                    <label className="inline-flex items-center">
+                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
+                      <span className="ml-2 text-white">Trending</span>
+                </label>
+                    <label className="inline-flex items-center">
+                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
+                      <span className="ml-2 text-white">Season Trending</span>
+                </label>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="inline-flex items-center">
+                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
+                      <span className="ml-2 text-white">Hindi Dub</span>
+                </label>
+                    <label className="inline-flex items-center">
+                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
+                      <span className="ml-2 text-white">Telugu Dub</span>
+                </label>
+                  </div>
+                </div>
+              </div>
+
+          <button
+            type="submit"
+                className="w-full bg-[#f47521] text-white py-2.5 rounded-lg hover:bg-[#f47521]/90 transition-colors"
+          >
+            Add Anime
+          </button>
+        </form>
+      </div>
 
           {/* Manage Anime Section - Responsive layout */}
           <div className="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg">
@@ -693,87 +639,79 @@ const AdminPanel = () => {
                           </div>
                           <p className="text-sm text-gray-300 line-clamp-2">{anime.description}</p>
                         </div>
-
+                          
                         {/* Feature Toggles - Responsive grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'trending')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.trending ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            Trending
-                          </button>
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'seasonTrending')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.seasonTrending ? 'bg-[#f47521] text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            Season
-                          </button>
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'isHindiDub')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.isHindiDub ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            Hindi
-                          </button>
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'isTeluguDub')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.isTeluguDub ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            Telugu
-                          </button>
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'isNewEpisode')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.isNewEpisode ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            New
-                          </button>
-                          <button
-                            onClick={() => toggleAnimeFlag(anime._id, 'isMovie')}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                              anime.isMovie ? 'bg-yellow-600 text-white' : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            Movie
-                          </button>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'trending')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.trending ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                Trending
+                              </button>
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'seasonTrending')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.seasonTrending ? 'bg-[#f47521] text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                Season
+                              </button>
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'isHindiDub')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.isHindiDub ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                Hindi
+                              </button>
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'isTeluguDub')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.isTeluguDub ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                Telugu
+                              </button>
+                              <button
+                                onClick={() => toggleAnimeFlag(anime._id, 'isNewEpisode')}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  anime.isNewEpisode ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-300'
+                                }`}
+                              >
+                                New
+                              </button>
                         </div>
 
                         {/* Actions - Responsive layout */}
                         <div className="flex items-center gap-2 mt-3">
-                          <button
-                            onClick={() => setSelectedAnime(selectedAnime === anime._id ? null : anime._id)}
+                  <button
+                    onClick={() => setSelectedAnime(selectedAnime === anime._id ? null : anime._id)}
                             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 transition-all duration-200 text-sm font-medium w-full sm:w-auto"
-                          >
-                            {selectedAnime === anime._id ? (
+                  >
+                    {selectedAnime === anime._id ? (
                               <>
                                 <ChevronUp className="h-4 w-4" />
                                 <span>Hide Seasons</span>
                               </>
-                            ) : (
+                    ) : (
                               <>
                                 <ChevronDown className="h-4 w-4" />
                                 <span>Show Seasons</span>
                               </>
-                            )}
-                          </button>
-                          <button
+                    )}
+                  </button>
+                  <button
                             onClick={() => handleDeleteClick('anime', anime._id, anime.title)}
                             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white transition-all duration-200 text-sm font-medium w-full sm:w-auto"
-                          >
+                  >
                             <Trash className="h-4 w-4" />
                             <span>Delete</span>
-                          </button>
+                  </button>
                         </div>
-                      </div>
-                    </div>
+                </div>
+              </div>
 
                     {/* Seasons/Episodes Section - Responsive layout */}
                     {selectedAnime === anime._id && (
@@ -790,19 +728,19 @@ const AdminPanel = () => {
 
                         {/* Season List */}
                         <div className="space-y-4">
-                          {anime.seasons.map((season) => (
+                  {anime.seasons.map((season) => (
                             <div key={season._id} className="bg-gray-800 rounded-lg p-4">
                               <div className="flex justify-between items-center">
-                                <h5 className="font-medium">Season {season.number}</h5>
-                                <button
-                                  onClick={() => setSelectedSeason(selectedSeason === season._id ? null : season._id)}
+                        <h5 className="font-medium">Season {season.number}</h5>
+                        <button
+                          onClick={() => setSelectedSeason(selectedSeason === season._id ? null : season._id)}
                                   className="text-sm text-gray-400 hover:text-white transition-colors"
-                                >
-                                  {selectedSeason === season._id ? 'Hide Episodes' : 'Show Episodes'}
-                                </button>
-                              </div>
+                        >
+                          {selectedSeason === season._id ? 'Hide Episodes' : 'Show Episodes'}
+                        </button>
+                      </div>
 
-                              {selectedSeason === season._id && (
+                      {selectedSeason === season._id && (
                                 <div className="mt-3">
                                   {/* Episode Form - Better desktop layout */}
                                   <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-lg p-3 sm:p-6 mb-4 episode-form">
@@ -814,25 +752,25 @@ const AdminPanel = () => {
                                     <div className="space-y-4 sm:space-y-6">
                                       {/* Basic Info - 2 columns on desktop */}
                                       <div className="grid grid-cols-2 gap-4">
-                                        <div>
+                                      <div>
                                           <label className="block text-sm font-medium mb-1.5 text-gray-200">Title</label>
-                                          <input
-                                            {...episodeForm.register('title')}
+                                        <input
+                                          {...episodeForm.register('title')}
                                             className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                             placeholder="Episode title"
-                                          />
+                                        />
                                           {episodeForm.formState.errors.title && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.title.message}</p>
                                           )}
-                                        </div>
-                                        <div>
+                                      </div>
+                                      <div>
                                           <label className="block text-sm font-medium mb-1.5 text-gray-200">Number</label>
-                                          <input
-                                            type="number"
-                                            {...episodeForm.register('number', { valueAsNumber: true })}
+                                        <input
+                                          type="number"
+                                          {...episodeForm.register('number', { valueAsNumber: true })}
                                             className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                             placeholder="#"
-                                          />
+                                        />
                                           {episodeForm.formState.errors.number && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.number.message}</p>
                                           )}
@@ -846,37 +784,37 @@ const AdminPanel = () => {
                                           Video Sources
                                         </h4>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                          <div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">DoodStream</label>
-                                            <input
-                                              {...episodeForm.register('doodstream')}
+                                        <input
+                                          {...episodeForm.register('doodstream')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div>
+                                        />
+                                      </div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">MegaCloud</label>
-                                            <input
-                                              {...episodeForm.register('megacloud')}
+                                        <input
+                                          {...episodeForm.register('megacloud')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div>
+                                        />
+                                      </div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">Mega.nz</label>
-                                            <input
-                                              {...episodeForm.register('mega')}
+                                        <input
+                                          {...episodeForm.register('mega')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
-                                          </div>
-                                          <div>
+                                        />
+                                      </div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">Streamtape</label>
-                                            <input
-                                              {...episodeForm.register('streamtape')}
+                                        <input
+                                          {...episodeForm.register('streamtape')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                            />
+                                        />
                                           </div>
                                         </div>
                                       </div>
@@ -890,29 +828,29 @@ const AdminPanel = () => {
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="sm:col-span-2">
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">Thumbnail URL</label>
-                                            <input
-                                              {...episodeForm.register('thumbnail')}
+                                        <input
+                                          {...episodeForm.register('thumbnail')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
-                                              placeholder="Enter thumbnail URL"
-                                            />
-                                          </div>
-                                          <div>
+                                          placeholder="Enter thumbnail URL"
+                                        />
+                                      </div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">Duration</label>
-                                            <input
-                                              {...episodeForm.register('duration')}
+                                        <input
+                                          {...episodeForm.register('duration')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
                                               placeholder="24:30"
-                                            />
-                                          </div>
-                                          <div>
+                                        />
+                                      </div>
+                                      <div>
                                             <label className="block text-sm font-medium mb-1.5 text-gray-300">Release Date</label>
-                                            <input
-                                              type="date"
-                                              {...episodeForm.register('releaseDate')}
+                                        <input
+                                          type="date"
+                                          {...episodeForm.register('releaseDate')}
                                               className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
-                                            />
-                                          </div>
-                                        </div>
+                                        />
+                                      </div>
+                                    </div>
                                       </div>
                                     </div>
 
@@ -976,18 +914,21 @@ const AdminPanel = () => {
                                       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                     >
                                       <div className="flex space-x-4 pb-4" style={{ minWidth: 'min-content' }}>
-                                {season.episodes.map((episode) => (
-                                  <div 
-                                    key={episode._id} 
+                                {season.episodes
+                                  .slice()
+                                  .sort((a, b) => a.number - b.number)
+                                  .map((episode) => (
+                                      <div 
+                                        key={episode._id} 
                                     className="flex-shrink-0 w-[280px] bg-gray-700 rounded-lg overflow-hidden group hover:bg-gray-600 transition-colors"
-                                  >
+                                      >
                                     <div className="relative">
-                                      <img 
-                                        src={episode.thumbnail} 
-                                        alt={episode.title}
+                                            <img 
+                                              src={episode.thumbnail} 
+                                              alt={episode.title}
                                         className="w-full aspect-video object-cover"
-                                      />
-                                      {episode.isNew && (
+                                            />
+                                              {episode.isNew && (
                                         <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#f47521] text-white text-xs rounded-full">
                                           New
                                         </div>
@@ -997,28 +938,28 @@ const AdminPanel = () => {
                                       <h4 className="font-medium">Episode {episode.number}</h4>
                                       <p className="text-sm text-gray-400 truncate">{episode.title}</p>
                                       <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                        <span>{episode.duration}</span>
-                                        <span>•</span>
-                                        <span>{new Date(episode.releaseDate).toLocaleDateString()}</span>
-                                      </div>
+                                              <span>{episode.duration}</span>
+                                              <span>•</span>
+                                              <span>{new Date(episode.releaseDate).toLocaleDateString()}</span>
+                                            </div>
                                       {/* Video source indicators */}
                                       <div className="flex flex-wrap gap-2 mt-3">
-                                        {episode.doodstream && (
+                                              {episode.doodstream && (
                                           <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">VidSrc</span>
-                                        )}
-                                        {episode.megacloud && (
+                                              )}
+                                              {episode.megacloud && (
                                           <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">MegaCloud</span>
-                                        )}
-                                        {episode.mega && (
+                                              )}
+                                              {episode.mega && (
                                           <span className="px-2 py-0.5 bg-gray-600 text-gray-300 text-xs rounded-full">Mega</span>
-                                        )}
-                                      </div>
+                                              )}
+                                            </div>
                                       {/* Action buttons */}
                                       <div className="flex items-center gap-2 mt-4">
-                                        <button
-                                          onClick={() => {
-                                            if (editingEpisode?._id === episode._id) {
-                                              setEditingEpisode(null);
+                                          <button
+                                            onClick={() => {
+                                              if (editingEpisode?._id === episode._id) {
+                                                setEditingEpisode(null);
                                               episodeForm.reset({
                                                 title: '',
                                                 number: 1,
@@ -1030,12 +971,12 @@ const AdminPanel = () => {
                                                 duration: '',
                                                 releaseDate: new Date().toISOString().split('T')[0]
                                               });
-                                            } else {
-                                              setEditingEpisode({
-                                                _id: episode._id,
-                                                seasonId: season._id,
-                                                animeId: anime._id
-                                              });
+                                              } else {
+                                                setEditingEpisode({
+                                                  _id: episode._id,
+                                                  seasonId: season._id,
+                                                  animeId: anime._id
+                                                });
                                               // Set all form values with existing episode data
                                               episodeForm.setValue('title', episode.title);
                                               episodeForm.setValue('number', episode.number);
@@ -1055,32 +996,32 @@ const AdminPanel = () => {
                                           className="flex-1 px-3 py-1.5 bg-gray-600 text-white text-sm rounded hover:bg-gray-500 transition-colors"
                                         >
                                           {editingEpisode?._id === episode._id ? 'Cancel Edit' : 'Edit'}
-                                        </button>
-                                        <button
-                                          onClick={() => handleDeleteClick('episode', episode._id, episode.title, anime._id, season._id)}
+                                          </button>
+                                <button
+                                            onClick={() => handleDeleteClick('episode', episode._id, episode.title, anime._id, season._id)}
                                           className="flex-1 px-3 py-1.5 bg-red-600/20 text-red-500 text-sm rounded hover:bg-red-600/30 transition-colors"
-                                        >
+                                >
                                           Delete
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                                      </div>
-                                    </div>
+                                </button>
+                                        </div>
+                              </div>
+                    </div>
+                  ))}
+                        </div>
+                </div>
                                     {/* Gradient shadows for scroll indication */}
                                     <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#141821] to-transparent pointer-events-none" />
                                     <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#141821] to-transparent pointer-events-none" />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                ))}
+                        </div>
+                              )}
+                        </div>
+                          ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
               </div>
             </div>
           </div>
