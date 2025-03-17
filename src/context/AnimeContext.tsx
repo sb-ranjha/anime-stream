@@ -20,6 +20,7 @@ interface Episode {
   _id: string;
   title: string;
   number: number;
+  streamHG?: string;
   doodstream?: string;
   megacloud?: string;
   mega?: string;

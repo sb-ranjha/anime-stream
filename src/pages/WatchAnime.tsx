@@ -3,6 +3,21 @@ import { useParams, Link } from 'react-router-dom';
 import { useAnime } from '../context/AnimeContext';
 import { ChevronLeft, ChevronRight, Star, Play, Pause, Maximize, SkipBack, SkipForward, Volume2, VolumeX, Loader, Mic } from 'lucide-react';
 
+interface Episode {
+  _id: string;
+  title: string;
+  number: number;
+  streamHG?: string;
+  doodstream?: string;
+  megacloud?: string;
+  mega?: string;
+  streamtape?: string;
+  thumbnail: string;
+  duration: string;
+  releaseDate: string;
+  isNew?: boolean;
+}
+
 function WatchAnime() {
   const { animeId, seasonId, episodeId } = useParams();
   const { animes } = useAnime();
@@ -18,7 +33,7 @@ function WatchAnime() {
     category: string;
     matchScore: number;
   }>>([]);
-  const [videoSource, setVideoSource] = useState<'doodstream' | 'megacloud' | 'mega' | 'streamtape'>('doodstream');
+  const [videoSource, setVideoSource] = useState<'streamHG' | 'doodstream' | 'megacloud' | 'mega' | 'streamtape'>('streamHG');
   const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -89,6 +104,32 @@ function WatchAnime() {
     }
   }, [animeId, anime, animes]);
 
+  // Add this effect to automatically select available source
+  useEffect(() => {
+    if (episode) {
+      const currentSourceAvailable = 
+        (videoSource === 'streamHG' && episode.streamHG) ||
+        (videoSource === 'doodstream' && episode.doodstream) ||
+        (videoSource === 'megacloud' && episode.megacloud) ||
+        (videoSource === 'mega' && episode.mega) ||
+        (videoSource === 'streamtape' && episode.streamtape);
+
+      if (!currentSourceAvailable) {
+        if (episode.streamHG) {
+          setVideoSource('streamHG');
+        } else if (episode.doodstream) {
+          setVideoSource('doodstream');
+        } else if (episode.megacloud) {
+          setVideoSource('megacloud');
+        } else if (episode.mega) {
+          setVideoSource('mega');
+        } else if (episode.streamtape) {
+          setVideoSource('streamtape');
+        }
+      }
+    }
+  }, [episode, videoSource]);
+
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     if (!scrollContainerRef.current) return;
     setIsDragging(true);
@@ -132,7 +173,20 @@ function WatchAnime() {
           
           {/* Video Players */}
           <div className="absolute top-0 left-0 w-full h-full">
-            {videoSource === 'doodstream' && episode.doodstream ? (
+            {videoSource === 'streamHG' && episode.streamHG ? (
+              <iframe 
+                key={`${iframeKey}-${episodeId}-${videoSource}`}
+                src={`https://cybervynx.com/e/${episode.streamHG}?controls=1`}
+                className="absolute top-0 left-0 w-full h-full"
+                allowFullScreen
+                allow="autoplay; fullscreen"
+                scrolling="no"
+                frameBorder="0"
+                onLoad={handleIframeLoad}
+                title={`${anime.title} - Season ${season.number} Episode ${episode.number}`}
+                style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}
+              />
+            ) : videoSource === 'doodstream' && episode.doodstream ? (
               <iframe 
                 key={`${iframeKey}-${episodeId}-${videoSource}`}
                 src={`https://cybervynx.com/e/${episode.doodstream}?controls=1`}
@@ -194,7 +248,7 @@ function WatchAnime() {
 
       {/* Video Source Selector */}
       <div className="sticky top-0 z-10 bg-[#141821] py-2">
-        {(episode.doodstream || episode.megacloud || episode.mega || episode.streamtape) && (
+        {(episode.streamHG || episode.doodstream || episode.megacloud || episode.mega || episode.streamtape) && (
           <div className="bg-gray-900 p-2 md:p-3 rounded-lg mb-4 flex flex-wrap items-center gap-2">
             <div className="flex items-center mr-3">
               <Play className="h-4 w-4 md:h-5 md:w-5 text-[#f47521] mr-2" />
@@ -202,6 +256,18 @@ function WatchAnime() {
             </div>
             
             <div className="flex flex-wrap gap-2">
+              {episode.streamHG && (
+                <button 
+                  onClick={() => setVideoSource('streamHG')}
+                  className={`px-3 md:px-4 py-1 md:py-1.5 rounded text-xs md:text-sm font-medium transition-colors ${
+                    videoSource === 'streamHG' 
+                      ? 'bg-[#f47521] text-white' 
+                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  }`}
+                >
+                  StreamHG
+                </button>
+              )}
               {episode.doodstream && (
                 <button 
                   onClick={() => setVideoSource('doodstream')}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X, ChevronDown, Settings } from 'lucide-react';
+import { Search, X, ChevronDown, Settings, Play } from 'lucide-react';
 import { useAnime } from '../context/AnimeContext';
 import { useMovies } from '../context/MovieContext';
 import { useAuth } from '../context/AuthContext';
@@ -49,6 +49,7 @@ function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false);
+        setSearchQuery('');
         setSearchResults([]);
       }
     }
@@ -105,11 +106,28 @@ function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      if (searchResults.length > 0) {
+        // If there are results, navigate to the first one
+        const firstResult = searchResults[0];
+        const path = firstResult.type === 'anime' ? `/anime/${firstResult._id}` : `/watch/movie/${firstResult._id}`;
+        navigate(path);
+      } else {
+        // If no results, go to search page
+        navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      }
       setIsSearchOpen(false);
-      setSearchResults([]);
       setSearchQuery('');
+      setSearchResults([]);
     }
+  };
+
+  // Handle result click
+  const handleResultClick = (result: SearchResult) => {
+    const path = result.type === 'anime' ? `/anime/${result._id}` : `/watch/movie/${result._id}`;
+    navigate(path);
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
   };
 
   // Close mobile menu when route changes
@@ -281,7 +299,18 @@ function Navbar() {
             {/* Search */}
             <div ref={searchRef} className="relative">
               <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                onClick={() => {
+                  if (isSearchOpen) {
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                    setSearchResults([]);
+                  } else {
+                    setIsSearchOpen(true);
+                    if (searchInputRef.current) {
+                      searchInputRef.current.focus();
+                    }
+                  }
+                }}
                 className="p-2 lg:p-2.5 text-white hover:bg-white/5 rounded-lg transition-all"
                 aria-label="Search"
               >
@@ -291,62 +320,70 @@ function Navbar() {
               {isSearchOpen && (
                 <div
                   ref={searchRef}
-                  className="absolute top-full left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/5"
+                  className="absolute top-full right-0 mt-2 w-[320px] md:w-[400px] bg-black/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/10 overflow-hidden"
                 >
-                  <div className="max-w-3xl mx-auto p-4">
-                    <form onSubmit={handleSearch}>
-                      <div className="relative">
-                        <input
-                          ref={searchInputRef}
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search anime or movies..."
-                          className="w-full bg-white/5 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#f47521]"
-                        />
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                          >
-                            <X className="h-5 w-5 text-white/50 hover:text-white" />
-                          </button>
-                        )}
-                      </div>
+                  <div className="p-3">
+                    <form onSubmit={handleSearch} className="relative">
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search anime or movies..."
+                        className="w-full bg-[#141821] text-white rounded-lg pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#f47521] placeholder-white/50 text-sm"
+                      />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setSearchResults([]);
+                          }}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                          <X className="h-4 w-4 text-white/70 hover:text-white" />
+                        </button>
+                      )}
                     </form>
 
                     {searchResults.length > 0 && (
-                      <div className="mt-4 space-y-2">
+                      <div className="mt-3 space-y-1">
                         {searchResults.map((result) => (
-                          <Link
+                          <button
                             key={`${result.type}-${result._id}`}
-                            to={result.type === 'anime' ? `/anime/${result._id}` : `/watch/movie/${result._id}`}
-                            className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors"
-                            onClick={() => {
-                              setIsSearchOpen(false);
-                              setSearchQuery('');
-                              setSearchResults([]);
-                            }}
+                            onClick={() => handleResultClick(result)}
+                            className="w-full flex items-center gap-3 p-2 hover:bg-[#141821] rounded-lg transition-colors text-left"
                           >
-                            <img
-                              src={result.type === 'anime' ? result.image : result.thumbnail}
-                              alt={result.title}
-                              className="h-12 w-20 object-cover rounded"
-                            />
-                            <div>
-                              <h4 className="text-white font-medium line-clamp-1">{result.title}</h4>
-                              <p className="text-sm text-white/70 capitalize">{result.type}</p>
+                            <div className="relative flex-shrink-0">
+                              <img
+                                src={result.type === 'anime' ? result.image : result.thumbnail}
+                                alt={result.title}
+                                className="h-14 w-24 object-cover rounded-lg"
+                              />
+                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm rounded text-[10px] font-medium text-[#f47521] capitalize">
+                                {result.type}
+                              </div>
                             </div>
-                          </Link>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-white font-medium text-sm line-clamp-1">{result.title}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="text-[10px] text-[#f47521] capitalize flex items-center gap-1">
+                                  <Play className="h-3 w-3" />
+                                  {result.type === 'anime' ? 'Watch Now' : 'Play Movie'}
+                                </div>
+                              </div>
+                            </div>
+                          </button>
                         ))}
                       </div>
                     )}
 
                     {searchQuery && searchResults.length === 0 && (
-                      <div className="mt-4 text-center text-white/70">
-                        No results found
+                      <div className="mt-3 text-center py-4">
+                        <Search className="h-6 w-6 text-[#f47521] mx-auto mb-2 opacity-50" />
+                        <p className="text-white text-sm">No results found</p>
+                        <p className="text-[#f47521] text-xs mt-0.5">Try different keywords</p>
                       </div>
                     )}
                   </div>

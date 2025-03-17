@@ -9,7 +9,7 @@ function CategoryPage() {
   const categoryAnimes = animes.filter(anime => 
     anime.category.toLowerCase() === category?.toLowerCase()
   );
-
+  
   const formatCategoryName = (name: string) => {
     return name.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
@@ -17,7 +17,7 @@ function CategoryPage() {
   };
 
   if (categoryAnimes.length === 0) {
-    return (
+  return (
       <div className="min-h-screen bg-[#141821] pt-16 px-4">
         <div className="max-w-4xl mx-auto py-8 md:py-12">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 text-center">
@@ -152,14 +152,14 @@ function CategoryPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {categoryAnimes.map((anime) => (
-            <Link
+            <Link 
               key={anime._id}
               to={`/anime/${anime._id}`}
               className="group relative overflow-hidden rounded-xl aspect-[2/3] bg-[#1a1b1f] hover:scale-105 transition-transform duration-300"
             >
-              <img
-                src={anime.image}
-                alt={anime.title}
+                <img
+                  src={anime.image}
+                  alt={anime.title}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />

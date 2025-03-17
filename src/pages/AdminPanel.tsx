@@ -21,6 +21,7 @@ const animeSchema = z.object({
 const episodeSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   number: z.number().min(1, 'Episode number is required'),
+  streamHG: z.string().optional(),
   doodstream: z.string().optional(),
   megacloud: z.string().optional(),
   mega: z.string().optional(),
@@ -28,7 +29,7 @@ const episodeSchema = z.object({
   thumbnail: z.string().url('Must be a valid URL'),
   duration: z.string().optional(),
   releaseDate: z.string().min(1, 'Release date is required')
-}).refine(data => data.doodstream || data.megacloud || data.mega || data.streamtape, {
+}).refine(data => data.streamHG || data.doodstream || data.megacloud || data.mega || data.streamtape, {
   message: "At least one video source must be provided",
   path: ["doodstream"]
 });
@@ -40,6 +41,7 @@ interface Episode {
   _id: string;
   title: string;
   number: number;
+  streamHG?: string;
   doodstream?: string;
   megacloud?: string;
   mega?: string;
@@ -125,6 +127,7 @@ const AdminPanel = () => {
     defaultValues: {
       number: 1,
       title: '',
+      streamHG: '',
       doodstream: '',
       megacloud: '',
       mega: '',
@@ -385,16 +388,16 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 bg-white dark:bg-[#141821] mt-16 sm:mt-20">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 bg-[#141821] mt-16 sm:mt-20">
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
         {/* Sidebar Navigation - Collapsible on mobile */}
         <div className="w-full lg:w-64 shrink-0">
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 sm:p-4 sticky top-20">
+          <div className="bg-gray-800 rounded-lg p-3 sm:p-4 sticky top-20">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Quick Navigation</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-white">Quick Navigation</h2>
             </div>
             
-            {/* Navigation buttons in grid for mobile, stack for desktop */}
+            {/* Navigation buttons - Grid for mobile, Stack for desktop */}
             <nav className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2">
               <button
                 onClick={() => handleNavigationClick('all')}
@@ -453,7 +456,7 @@ const AdminPanel = () => {
               </button>
             </nav>
 
-            {/* Quick Search and Filter - Full width on mobile */}
+            {/* Quick Search and Filter */}
             <div className="mt-4 space-y-3">
               <div className="relative">
                 <input
@@ -461,18 +464,18 @@ const AdminPanel = () => {
                   placeholder="Quick search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700 rounded-md pl-9 pr-3 py-2 text-sm"
+                  className="w-full bg-[#1a1f2c] text-white rounded-md pl-9 pr-3 py-2 text-sm border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full bg-white dark:bg-gray-700 rounded-md px-3 py-2 text-sm"
+                className="w-full bg-[#1a1f2c] text-white rounded-md px-3 py-2 text-sm border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
               >
                 <option value="">All Categories</option>
                 {uniqueCategories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category} value={category} className="bg-[#1a1f2c]">{category}</option>
                 ))}
               </select>
             </div>
@@ -481,108 +484,126 @@ const AdminPanel = () => {
 
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">Admin Panel</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">Admin Panel</h1>
       
-          {/* Add Anime Form - Responsive grid */}
-          <div className="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
+          {/* Add Anime Form */}
+          <div className="bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center text-white">
               <Plus className="h-5 w-5 text-[#f47521] mr-2" /> Add New Anime
             </h2>
             <form onSubmit={animeForm.handleSubmit(onSubmitAnime)} className="space-y-6">
-          <div>
-                <label className="block text-white text-sm font-medium mb-2">Title</label>
-            <input
-                  type="text"
-                  placeholder="Enter anime title"
-                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
-            />
-          </div>
-
-          <div>
-                <label className="block text-white text-sm font-medium mb-2">Description</label>
-            <textarea
-                  placeholder="Enter anime description"
-                  rows={4}
-                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
-            />
-          </div>
-
+              {/* Form fields with updated styling */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-                  <label className="block text-white text-sm font-medium mb-2">Image URL</label>
-            <input
+                <div className="col-span-full">
+                  <label className="block text-white text-sm font-medium mb-2">Title</label>
+                  <input
+                    {...animeForm.register('title')}
                     type="text"
-                  placeholder="Enter image URL"
-                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
-            />
-          </div>
-          <div>
+                    placeholder="Enter anime title"
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
+                  />
+                </div>
+                
+                <div className="col-span-full">
+                  <label className="block text-white text-sm font-medium mb-2">Description</label>
+                  <textarea
+                    {...animeForm.register('description')}
+                    placeholder="Enter anime description"
+                    rows={4}
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Image URL</label>
+                  <input
+                    {...animeForm.register('image')}
+                    type="text"
+                    placeholder="Enter image URL"
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-white text-sm font-medium mb-2">Rating (0-10)</label>
-            <input
-              type="number"
-              min="0"
-              max="10"
-              step="0.1"
+                  <input
+                    {...animeForm.register('rating', { valueAsNumber: true })}
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.1"
                     placeholder="0"
-                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
-            />
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white placeholder-gray-400 rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
+                  />
                 </div>
+
+                <div className="col-span-full">
+                  <label className="block text-white text-sm font-medium mb-2">Category</label>
+                  <select 
+                    {...animeForm.register('category')}
+                    className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white rounded-lg border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
+                  >
+                    <option value="" className="bg-[#1a1f2c]">Select category</option>
+                    {uniqueCategories.map(category => (
+                      <option key={category} value={category} className="bg-[#1a1f2c]">{category}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-span-full space-y-3">
+                  <label className="block text-white text-sm font-medium">Tags</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <label className="inline-flex items-center">
+                      <input 
+                        {...animeForm.register('trending')}
+                        type="checkbox" 
+                        className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
+                      />
+                      <span className="ml-2 text-white">Trending</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input 
+                        {...animeForm.register('seasonTrending')}
+                        type="checkbox" 
+                        className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
+                      />
+                      <span className="ml-2 text-white">Season Trending</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input 
+                        {...animeForm.register('isHindiDub')}
+                        type="checkbox" 
+                        className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
+                      />
+                      <span className="ml-2 text-white">Hindi Dub</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input 
+                        {...animeForm.register('isTeluguDub')}
+                        type="checkbox" 
+                        className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-gray-700" 
+                      />
+                      <span className="ml-2 text-white">Telugu Dub</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#f47521] text-white py-2.5 rounded-lg hover:bg-[#f47521]/90 transition-colors"
+              >
+                Add Anime
+              </button>
+            </form>
           </div>
 
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">Category</label>
-                <select 
-                  className="w-full px-4 py-2.5 bg-[#1a1f2c] text-white rounded-lg border border-white/5 focus:outline-none focus:ring-2 focus:ring-[#f47521] focus:border-transparent"
-                >
-                  <option value="" className="bg-[#1a1f2c]">Select category</option>
-                  <option value="action" className="bg-[#1a1f2c]">Action</option>
-                  <option value="romance" className="bg-[#1a1f2c]">Romance</option>
-                  <option value="comedy" className="bg-[#1a1f2c]">Comedy</option>
-                  <option value="drama" className="bg-[#1a1f2c]">Drama</option>
-                </select>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-white text-sm font-medium">Tags</label>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-4">
-                    <label className="inline-flex items-center">
-                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
-                      <span className="ml-2 text-white">Trending</span>
-                </label>
-                    <label className="inline-flex items-center">
-                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
-                      <span className="ml-2 text-white">Season Trending</span>
-                </label>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <label className="inline-flex items-center">
-                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
-                      <span className="ml-2 text-white">Hindi Dub</span>
-                </label>
-                    <label className="inline-flex items-center">
-                      <input type="checkbox" className="form-checkbox h-4 w-4 text-[#f47521] bg-[#1a1f2c] border-white/5" />
-                      <span className="ml-2 text-white">Telugu Dub</span>
-                </label>
-                  </div>
-                </div>
-              </div>
-
-          <button
-            type="submit"
-                className="w-full bg-[#f47521] text-white py-2.5 rounded-lg hover:bg-[#f47521]/90 transition-colors"
-          >
-            Add Anime
-          </button>
-        </form>
-      </div>
-
-          {/* Manage Anime Section - Responsive layout */}
-          <div className="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg">
+          {/* Manage Anime Section */}
+          <div className="bg-gray-800 p-3 sm:p-4 lg:p-6 rounded-lg">
             <div className="flex flex-col gap-4">
-              {/* Header with responsive search */}
+              {/* Header with search */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Manage Anime</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-white">Manage Anime</h2>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <div className="relative flex-grow sm:w-64">
                     <input
@@ -590,27 +611,27 @@ const AdminPanel = () => {
                       placeholder="Search anime..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-gray-700 rounded-md pl-9 pr-3 py-2 text-sm"
+                      className="w-full bg-[#1a1f2c] text-white rounded-md pl-9 pr-3 py-2 text-sm border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className="w-full sm:w-48 bg-gray-700 rounded-md px-3 py-2 text-sm"
+                    className="w-full sm:w-48 bg-[#1a1f2c] text-white rounded-md px-3 py-2 text-sm border border-gray-700 focus:border-[#f47521] focus:ring-1 focus:ring-[#f47521]"
                   >
                     <option value="">All Categories</option>
                     {uniqueCategories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                      <option key={category} value={category} className="bg-[#1a1f2c]">{category}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Anime Cards - Responsive grid */}
+              {/* Anime Cards Grid */}
               <div className="grid grid-cols-1 gap-4">
                 {filteredAnime.map((anime) => (
-                  <div key={anime._id} className="bg-white dark:bg-gray-700 rounded-lg overflow-hidden">
+                  <div key={anime._id} className="bg-[#1a1f2c] rounded-lg overflow-hidden">
                     <div className="flex flex-col sm:flex-row items-start gap-4 p-3 sm:p-4">
                       {/* Anime Image - Responsive size */}
                       <div className="w-full sm:w-40 lg:w-48 aspect-[3/4] rounded-lg overflow-hidden shrink-0">
@@ -688,7 +709,7 @@ const AdminPanel = () => {
                         <div className="flex items-center gap-2 mt-3">
                   <button
                     onClick={() => setSelectedAnime(selectedAnime === anime._id ? null : anime._id)}
-                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 transition-all duration-200 text-sm font-medium w-full sm:w-auto"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-all duration-200 text-sm font-medium w-full sm:w-auto"
                   >
                     {selectedAnime === anime._id ? (
                               <>
@@ -729,7 +750,7 @@ const AdminPanel = () => {
                         {/* Season List */}
                         <div className="space-y-4">
                   {anime.seasons.map((season) => (
-                            <div key={season._id} className="bg-gray-800 rounded-lg p-4">
+                            <div key={season._id} className="bg-gray-700 rounded-lg p-4">
                               <div className="flex justify-between items-center">
                         <h5 className="font-medium">Season {season.number}</h5>
                         <button
@@ -742,124 +763,132 @@ const AdminPanel = () => {
 
                       {selectedSeason === season._id && (
                                 <div className="mt-3">
-                                  {/* Episode Form - Better desktop layout */}
-                                  <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-lg p-3 sm:p-6 mb-4 episode-form">
-                                    <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-white flex items-center gap-2">
-                                      <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-[#f47521]" />
+                                  {/* Episode Form - Compact mobile layout */}
+                                  <form onSubmit={handleEpisodeSubmit} className="bg-[#1e2330] rounded-lg p-2 sm:p-4 lg:p-6 mb-4 episode-form">
+                                    <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-white flex items-center gap-2">
+                                      <Plus className="h-4 w-4 text-[#f47521]" />
                                       {editingEpisode ? 'Edit Episode' : 'Add Episode'}
                                     </h3>
                                     
-                                    <div className="space-y-4 sm:space-y-6">
-                                      {/* Basic Info - 2 columns on desktop */}
-                                      <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                          <label className="block text-sm font-medium mb-1.5 text-gray-200">Title</label>
-                                        <input
-                                          {...episodeForm.register('title')}
-                                            className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                    <div className="space-y-3 sm:space-y-4">
+                                      {/* Basic Info - Stack on mobile, 2 columns on desktop */}
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-sm font-medium mb-1 text-gray-200">Title</label>
+                                          <input
+                                            {...episodeForm.register('title')}
+                                            className="w-full bg-[#272b38] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                             placeholder="Episode title"
-                                        />
+                                          />
                                           {episodeForm.formState.errors.title && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.title.message}</p>
                                           )}
-                                      </div>
-                                      <div>
-                                          <label className="block text-sm font-medium mb-1.5 text-gray-200">Number</label>
-                                        <input
-                                          type="number"
-                                          {...episodeForm.register('number', { valueAsNumber: true })}
-                                            className="w-full bg-[#272b38] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                        </div>
+                                        <div>
+                                          <label className="block text-sm font-medium mb-1 text-gray-200">Number</label>
+                                          <input
+                                            type="number"
+                                            {...episodeForm.register('number', { valueAsNumber: true })}
+                                            className="w-full bg-[#272b38] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                             placeholder="#"
-                                        />
+                                          />
                                           {episodeForm.formState.errors.number && (
                                             <p className="text-red-500 text-xs mt-1">{episodeForm.formState.errors.number.message}</p>
                                           )}
                                         </div>
                                       </div>
 
-                                      {/* Video Sources - Grid layout on desktop */}
-                                      <div className="bg-[#272b38] rounded-lg p-4">
-                                        <h4 className="text-sm font-medium mb-3 text-white flex items-center gap-2">
+                                      {/* Video Sources - Compact grid */}
+                                      <div className="bg-[#272b38] rounded-lg p-2 sm:p-4">
+                                        <h4 className="text-sm font-medium mb-2 text-white flex items-center gap-2">
                                           <Play className="h-4 w-4" />
                                           Video Sources
                                         </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">DoodStream</label>
-                                        <input
-                                          {...episodeForm.register('doodstream')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">StreamHG</label>
+                                            <input
+                                              {...episodeForm.register('streamHG')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                        />
-                                      </div>
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">MegaCloud</label>
-                                        <input
-                                          {...episodeForm.register('megacloud')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">DoodStream</label>
+                                            <input
+                                              {...episodeForm.register('doodstream')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                        />
-                                      </div>
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Mega.nz</label>
-                                        <input
-                                          {...episodeForm.register('mega')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">MegaCloud</label>
+                                            <input
+                                              {...episodeForm.register('megacloud')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                        />
-                                      </div>
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Streamtape</label>
-                                        <input
-                                          {...episodeForm.register('streamtape')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Mega.nz</label>
+                                            <input
+                                              {...episodeForm.register('mega')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                               placeholder="Video ID"
-                                        />
+                                            />
+                                          </div>
+                                          <div className="sm:col-span-2">
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Streamtape</label>
+                                            <input
+                                              {...episodeForm.register('streamtape')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                              placeholder="Video ID"
+                                            />
                                           </div>
                                         </div>
                                       </div>
 
-                                      {/* Additional Details - Grid layout on desktop */}
-                                      <div className="bg-[#272b38] rounded-lg p-4">
-                                        <h4 className="text-sm font-medium mb-3 text-white flex items-center gap-2">
+                                      {/* Additional Details - Compact layout */}
+                                      <div className="bg-[#272b38] rounded-lg p-2 sm:p-4">
+                                        <h4 className="text-sm font-medium mb-2 text-white flex items-center gap-2">
                                           <Info className="h-4 w-4" />
                                           Additional Details
                                         </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                                           <div className="sm:col-span-2">
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Thumbnail URL</label>
-                                        <input
-                                          {...episodeForm.register('thumbnail')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
-                                          placeholder="Enter thumbnail URL"
-                                        />
-                                      </div>
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Duration</label>
-                                        <input
-                                          {...episodeForm.register('duration')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Thumbnail URL</label>
+                                            <input
+                                              {...episodeForm.register('thumbnail')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                              placeholder="Enter thumbnail URL"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Duration</label>
+                                            <input
+                                              {...episodeForm.register('duration')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
                                               placeholder="24:30"
-                                        />
-                                      </div>
-                                      <div>
-                                            <label className="block text-sm font-medium mb-1.5 text-gray-300">Release Date</label>
-                                        <input
-                                          type="date"
-                                          {...episodeForm.register('releaseDate')}
-                                              className="w-full bg-[#1e2330] rounded text-sm px-3 py-2 text-white border border-gray-600"
-                                        />
-                                      </div>
-                                    </div>
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-300">Release Date</label>
+                                            <input
+                                              type="date"
+                                              {...episodeForm.register('releaseDate')}
+                                              className="w-full bg-[#1e2330] rounded text-sm px-2 py-1.5 text-white border border-gray-600"
+                                            />
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
 
-                                    <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                                      <p className="text-sm text-gray-400 flex items-center gap-2">
+                                    <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+                                      <p className="text-xs sm:text-sm text-gray-400 flex items-center gap-2">
                                         <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#f47521]"></span>
                                         At least one video source required
                                       </p>
-                                      <div className="flex items-center gap-3 w-full sm:w-auto">
+                                      <div className="flex items-center gap-2 w-full sm:w-auto">
                                         {editingEpisode && (
                                           <button
                                             type="button"
@@ -868,6 +897,7 @@ const AdminPanel = () => {
                                               episodeForm.reset({
                                                 title: '',
                                                 number: 1,
+                                                streamHG: '',
                                                 doodstream: '',
                                                 megacloud: '',
                                                 mega: '',
@@ -877,7 +907,7 @@ const AdminPanel = () => {
                                                 releaseDate: new Date().toISOString().split('T')[0]
                                               });
                                             }}
-                                            className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-[#272b38] text-gray-300 text-sm font-medium hover:bg-[#2f3446] transition-colors flex items-center justify-center gap-2"
+                                            className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-[#272b38] text-gray-300 text-sm font-medium hover:bg-[#2f3446] transition-colors flex items-center justify-center gap-2"
                                           >
                                             <X className="h-4 w-4" />
                                             Cancel
@@ -885,17 +915,17 @@ const AdminPanel = () => {
                                         )}
                                         <button
                                           type="submit"
-                                          className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-[#f47521] text-white text-sm font-medium hover:bg-[#f47521]/90 transition-colors flex items-center justify-center gap-2"
+                                          className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-[#f47521] text-white text-sm font-medium hover:bg-[#f47521]/90 transition-colors flex items-center justify-center gap-2"
                                         >
                                           {editingEpisode ? (
                                             <>
                                               <Edit2 className="h-4 w-4" />
-                                              Update Episode
+                                              Update
                                             </>
                                           ) : (
                                             <>
                                               <Plus className="h-4 w-4" />
-                                              Add Episode
+                                              Add
                                             </>
                                           )}
                                         </button>
@@ -963,6 +993,7 @@ const AdminPanel = () => {
                                               episodeForm.reset({
                                                 title: '',
                                                 number: 1,
+                                                streamHG: '',
                                                 doodstream: '',
                                                 megacloud: '',
                                                 mega: '',
@@ -1021,27 +1052,24 @@ const AdminPanel = () => {
                 </div>
               )}
             </div>
-          ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Delete Confirmation Modal - Responsive sizing */}
+      {/* Delete Confirmation Modal */}
       {deleteConfirmation && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Confirm Delete</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 max-w-md w-full shadow-xl">
+            <h3 className="text-xl font-semibold mb-4 text-white">Confirm Delete</h3>
+            <p className="text-gray-300 mb-6">
               Are you sure you want to delete {deleteConfirmation.type === 'anime' ? 'anime' : 'episode'} "
-              <span className="font-medium text-gray-900 dark:text-white">{deleteConfirmation.title}</span>"? 
+              <span className="font-medium text-white">{deleteConfirmation.title}</span>"? 
               This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirmation(null)}
-                className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
